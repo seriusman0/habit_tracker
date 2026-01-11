@@ -10,7 +10,7 @@ class HabitLogController extends Controller
 {
     public function toggle(Request $request, Habit $habit, $date)
     {
-        if ($habit->user_id !== auth()->id()) {
+        if ($habit->user_id != auth()->id()) {
             abort(403);
         }
 

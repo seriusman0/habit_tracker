@@ -1,0 +1,33 @@
+Bertindaklah sebagai Senior Frontend & UX Developer dengan spesialisasi Laravel Inertia (Vue.js) dan Tailwind CSS.
+
+Saya ingin mengimplementasikan fitur inti **"Habit Card & Weekly Tracking"** yang meniru tampilan aplikasi native (seperti gambar referensi HabitShare).
+
+**1. Deskripsi UI (Lihat Referensi Visual):**
+Saya membutuhkan komponen Vue bernama `HabitItem.vue` yang memiliki layout berikut untuk setiap habit:
+* **Header:** Judul Habit (Bold, Biru Tua) di kiri, dan status privasi/statistik di bawahnya (misal: "Streak: 2 | Overall: 50% | Private").
+* **Weekly Row (Baris Hari):**
+    * Terdapat 7 lingkaran yang mewakili 7 hari terakhir (atau pekan ini).
+    * Label hari (Su, Mo, Tu, We, Th, Fr, Sa) berada di dalam atau di tengah lingkaran.
+    * Lingkaran hari ini ("TODAY") harus memiliki indikator visual khusus (misal: teks "TODAY" kecil di bawahnya).
+
+**2. Functional Requirement (Logika Centang vs X):**
+User meminta logika status 3 kondisi (Tri-state Logic) pada setiap lingkaran hari:
+* **State 1 (Empty/Null):** Lingkaran abu-abu (Belum ada log).
+* **State 2 (Done/Terlaksana):** Lingkaran Hijau dengan ikon Centang (Check).
+* **State 3 (Skipped/Gagal):** Lingkaran Merah dengan ikon Silang (X).
+
+**Mekanisme Interaksi:**
+Saat user mengklik lingkaran tanggal:
+* Buat agar tombol tersebut melakukan **Cycling Status**: Klik 1x jadi "Done" (Hijau), Klik lagi jadi "Skipped" (Merah), Klik lagi kembali "Empty" (Abu-abu).
+* Gunakan `router.visit` (Inertia) dengan `preserveScroll: true` agar halaman tidak lompat saat diklik.
+
+**3. Kebutuhan Backend (Laravel):**
+* Update `HabitController@index` untuk mengirimkan data habits beserta relasi `habitLogs` hanya untuk **7 hari terakhir**.
+* Pastikan data logs dikirim dalam format yang mudah dipetakan oleh Frontend (misal: Key-nya adalah tanggal `Y-m-d`).
+* Update `HabitLogController@toggle` untuk menerima parameter `status` ('completed' atau 'skipped') atau menghapus log jika statusnya null.
+
+**TUGAS ANDA:**
+1.  kerjakan pembuatan **Controller** (`HabitController` & `HabitLogController`) yang sudah diupdate untuk menangani logika tanggal dan status ini.
+2.  kerjakan pembuatan komponen **Vue** (`HabitItem.vue`) yang menggunakan Tailwind CSS untuk meniru styling persis seperti deskripsi di atas (Rounded circles, Flexbox layout, Dynamic Classes untuk warna Hijau/Merah/Abu).
+
+Silakan kerjakan sekarang.

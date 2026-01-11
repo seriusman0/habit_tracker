@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="/manifest.json">
+
+    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    @routes
+    @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+    @inertiaHead
+</head>
+
+<body class="font-sans antialiased bg-gray-200 dark:bg-gray-900">
+    <div class="mx-auto max-w-md min-h-screen bg-white dark:bg-gray-900 relative shadow-2xl overflow-hidden">
+        @inertia
+    </div>
+</body>
+
+</html>

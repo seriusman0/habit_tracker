@@ -1,15 +1,22 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
 
 const model = defineModel({
     type: String,
     required: true,
 });
 
+const props = defineProps({
+    autofocus: {
+        type: Boolean,
+        default: false,
+    },
+});
+
 const input = ref(null);
 
 onMounted(() => {
-    if (input.value.hasAttribute('autofocus')) {
+    if (props.autofocus) {
         input.value.focus();
     }
 });

@@ -1,33 +1,19 @@
-Bertindaklah sebagai Senior Frontend & UX Developer dengan spesialisasi Laravel Inertia (Vue.js) dan Tailwind CSS.
+Bertindaklah sebagai Senior Full Stack Laravel Developer & DevOps Engineer. Saya memiliki aplikasi Laravel 11 + Inertia.js + Vue 3 yang di-hosting di Shared Hosting dengan struktur Symlink.
 
-Saya ingin mengimplementasikan fitur inti **"Habit Card & Weekly Tracking"** yang meniru tampilan aplikasi native (seperti gambar referensi HabitShare).
+**Masalah & Error Logs:**
+Saya mengalami 3 masalah berikut yang perlu diselesaikan secara berurutan berdasarkan prioritas:
 
-**1. Deskripsi UI (Lihat Referensi Visual):**
-Saya membutuhkan komponen Vue bernama `HabitItem.vue` yang memiliki layout berikut untuk setiap habit:
-* **Header:** Judul Habit (Bold, Biru Tua) di kiri, dan status privasi/statistik di bawahnya (misal: "Streak: 2 | Overall: 50% | Private").
-* **Weekly Row (Baris Hari):**
-    * Terdapat 7 lingkaran yang mewakili 7 hari terakhir (atau pekan ini).
-    * Label hari (Su, Mo, Tu, We, Th, Fr, Sa) berada di dalam atau di tengah lingkaran.
-    * Lingkaran hari ini ("TODAY") harus memiliki indikator visual khusus (misal: teks "TODAY" kecil di bawahnya).
+1. **CRITICAL (403 Forbidden pada POST Request):**
+   Fitur toggle habit gagal dengan error 403, kemungkinan masalah CSRF, Session Domain, atau TrustProxies karena server ada di belakang HTTPS proxy/symlink.
+   Log: `POST https://habit-tracker.overcomer.my.id/habits/1/toggle/2026-01-05 403 (Forbidden)`
 
-**2. Functional Requirement (Logika Centang vs X):**
-User meminta logika status 3 kondisi (Tri-state Logic) pada setiap lingkaran hari:
-* **State 1 (Empty/Null):** Lingkaran abu-abu (Belum ada log).
-* **State 2 (Done/Terlaksana):** Lingkaran Hijau dengan ikon Centang (Check).
-* **State 3 (Skipped/Gagal):** Lingkaran Merah dengan ikon Silang (X).
+2. **ASSET ERROR (404 Not Found):**
+   Browser gagal memuat icon PWA.
+   Log: `GET https://habit-tracker.overcomer.my.id/icon-192x192.png 404 (Not Found)`
+   Saya sudah membuat icon di public/icon.png
 
-**Mekanisme Interaksi:**
-Saat user mengklik lingkaran tanggal:
-* Buat agar tombol tersebut melakukan **Cycling Status**: Klik 1x jadi "Done" (Hijau), Klik lagi jadi "Skipped" (Merah), Klik lagi kembali "Empty" (Abu-abu).
-* Gunakan `router.visit` (Inertia) dengan `preserveScroll: true` agar halaman tidak lompat saat diklik.
+3. **UI WARNING (Autofocus Blocked):**
+   Log: `Autofocus processing was blocked because a document already has a focused element.`
 
-**3. Kebutuhan Backend (Laravel):**
-* Update `HabitController@index` untuk mengirimkan data habits beserta relasi `habitLogs` hanya untuk **7 hari terakhir**.
-* Pastikan data logs dikirim dalam format yang mudah dipetakan oleh Frontend (misal: Key-nya adalah tanggal `Y-m-d`).
-* Update `HabitLogController@toggle` untuk menerima parameter `status` ('completed' atau 'skipped') atau menghapus log jika statusnya null.
-
-**TUGAS ANDA:**
-1.  kerjakan pembuatan **Controller** (`HabitController` & `HabitLogController`) yang sudah diupdate untuk menangani logika tanggal dan status ini.
-2.  kerjakan pembuatan komponen **Vue** (`HabitItem.vue`) yang menggunakan Tailwind CSS untuk meniru styling persis seperti deskripsi di atas (Rounded circles, Flexbox layout, Dynamic Classes untuk warna Hijau/Merah/Abu).
-
-Silakan kerjakan sekarang.
+**Tugas Anda:**
+Selesaikan error tersebut, agar di deployment di hosting tidak error lagi. 

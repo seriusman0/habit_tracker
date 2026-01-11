@@ -1,4 +1,4 @@
-import{c}from"./AuthenticatedLayout-DZWyFvic.js";/**
+import{c}from"./AuthenticatedLayout-9MzrGKru.js";/**
  * @license lucide-vue-next v0.562.0 - ISC
  *
  * This source code is licensed under the ISC license.

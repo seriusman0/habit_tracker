@@ -18,9 +18,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('habits', \App\Http\Controllers\HabitController::class);
     Route::post('/habits/{habit}/toggle/{date}', [\App\Http\Controllers\HabitLogController::class, 'toggle'])->name('habits.toggle');
-
-    Route::resource('friendships', \App\Http\Controllers\FriendshipController::class);
-    Route::get('/social', [\App\Http\Controllers\SocialController::class, 'index'])->name('social.index');
 });
 
 require __DIR__ . '/auth.php';

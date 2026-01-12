@@ -9,14 +9,6 @@ import TextInput from "@/Components/TextInput.vue";
 
 const props = defineProps({
     habit: Object,
-    friends: {
-        type: Array,
-        default: () => [],
-    },
-    sharedWith: {
-        type: Array,
-        default: () => [],
-    },
 });
 
 const form = useForm({
@@ -24,7 +16,7 @@ const form = useForm({
     description: props.habit.description,
     color: props.habit.color,
     frequency: props.habit.frequency,
-    shared_with: props.sharedWith,
+    frequency: props.habit.frequency,
 });
 
 const colors = [
@@ -164,35 +156,6 @@ const deleteHabit = () => {
                                     class="mt-2"
                                     :message="form.errors.frequency"
                                 />
-                            </div>
-
-                            <div v-if="friends && friends.length > 0">
-                                <InputLabel value="Share with Friends" />
-                                <div
-                                    class="mt-2 space-y-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-3"
-                                >
-                                    <div
-                                        v-for="friend in friends"
-                                        :key="friend.id"
-                                        class="flex items-center"
-                                    >
-                                        <input
-                                            :id="'friend-' + friend.id"
-                                            type="checkbox"
-                                            :value="friend.id"
-                                            v-model="form.shared_with"
-                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
-                                        />
-                                        <label
-                                            :for="'friend-' + friend.id"
-                                            class="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                                        >
-                                            {{ friend.name }} (@{{
-                                                friend.username
-                                            }})
-                                        </label>
-                                    </div>
-                                </div>
                             </div>
 
                             <div class="flex items-center justify-between">

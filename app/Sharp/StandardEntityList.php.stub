@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Sharp\Templates;
+
+use App\Models\YourModel;
+use Code16\Sharp\EntityList\Fields\EntityListField;
+use Code16\Sharp\EntityList\Fields\EntityListFieldsContainer;
+use Code16\Sharp\EntityList\SharpEntityList;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Builder;
+
+class StandardEntityList extends SharpEntityList
+{
+    /**
+     * Build the list columns.
+     */
+    public function buildList(EntityListFieldsContainer $fields): void
+    {
+        $fields
+            ->addField(
+                EntityListField::make('name')
+                    ->setLabel('Name')
+                    ->setSortable()
+            )
+            ->addField(
+                EntityListField::make('created_at')
+                    ->setLabel('Date')
+                    ->setSortable()
+            );
+    }
+
+    /**
+     * Fetch, filter, and sort the data.
+     */
+    public function getListData(): array|Arrayable
+    {
+        $items = YourModel::query()
+            // 1. Initial Query
+            ->select('id', 'name', 'created_at')
+            
+            // 2. Sort Logic
+            ->when(
+                $this->queryParams->sortedBy(),
+                function (Builder $query, $sortedBy) {
+                    $query->orderBy($sortedBy, $this->queryParams->sortedDir());
+                },
+                function (Builder $query) {
+                    // Default sort if not specified in UI (fallback)
+                    $query->orderBy('name', 'asc');
+                }
+            );
+
+        // 4. Return Transformed Paginator
+        return $this->transform(
+            $items->paginate(30),
+            function (YourModel $model) {
+                return [
+                    'id' => $model->id,
+                    'name' => $model->name,
+                    'created_at' => $model->created_at->format('Y-m-d'),
+                ];
+            }
+        );
+    }
+
+    /**
+     * Configure list behavior.
+     */
+    public function buildListConfig(): void
+    {
+        $this->setSearchable(['name'])
+            ->setDefaultSort('name', 'asc')
+            ->setPaginated(30);
+    }
+}

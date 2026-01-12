@@ -1,46 +1,132 @@
-Role: Senior Laravel & Fullstack Developer.
+Anda adalah Senior Laravel Architect dengan pengalaman mendalam menggunakan Sharp CMS (code16/sharp) versi terbaru (v8/v9).
 
-Context:
-Saya memiliki aplikasi Laravel (kemungkinan menggunakan Inertia.js/Vue/React) yang sudah di-deploy.
-1. Di Local: Semua berjalan lancar.
-2. Di Production: Saya mendapatkan error `403 Forbidden` saat melakukan request POST ke endpoint: `https://habit-tracker.overcomer.my.id/habits/1/toggle/2026-01-06`.
+KONTEKS PROJECT:
+- Framework: Laravel (versi modern)
+- CMS: Sharp (code16/sharp)
+- Stack UI Sharp: Inertia + Tailwind (default Sharp)
+- Sharp sudah berhasil diakses di URL /sharp
+- Login Sharp sudah berfungsi
+- Sidebar Sharp masih default dan sangat terbatas
 
-Tugas kamu dibagi menjadi dua bagian utama. Kerjakan langkah demi langkah:
+TUJUAN UTAMA:
+Saya ingin Sharp menjadi CMS/Admin Panel utama dengan kontrol penuh terhadap:
+1. Manajemen User
+2. Manajemen Role
+3. Relasi User ↔ Role
+4. Akses menu Sharp berbasis role
+5. CRUD berjalan stabil dan tanpa error
 
----
+TUGAS ANDA (WAJIB DIKERJAKAN SEMUA):
 
-### BAGIAN 1: DIAGNOSA & FIX ERROR 403 (Priority)
-Saya ingin kamu menelusuri kode saya untuk menemukan penyebab logic yang menyebabkan 403 ini. Jangan hanya menebak, tapi audit kode berikut:
+========================
+A. DESAIN STRUKTUR DATA
+========================
+1. Tentukan struktur tabel:
+   - users (asumsi sudah ada)
+   - roles
+   - relasi user_role (pivot atau foreign key)
+2. Buat migration yang BENAR dan aman.
+3. Tentukan relasi Eloquent (User ↔ Role).
 
-1. **Audit Route & Controller:**
-   - Cari definisi route untuk URL `/habits/{habit}/toggle/{date}`.
-   - Periksa Controller method yang menangani route tersebut.
-   - Cek apakah ada Authorize Gate atau Policy (contoh: `$this->authorize('update', $habit)`). Jika ada, pastikan logic di `HabitPolicy` tidak salah membandingkan `user_id` (misalnya masalah tipe data integer vs string).
+========================
+B. SHARP ENTITIES
+========================
+Buat Sharp Entity lengkap untuk:
+1. User
+   - List
+   - Form
+   - Show (opsional tapi direkomendasikan)
+2. Role
+   - List
+   - Form
 
-2. **Audit Middleware & Config (Crucial for Production):**
-   - Cek file `app/Http/Middleware/TrustProxies.php` atau `bootstrap/app.php` (untuk Laravel 11). Pastikan proxies dikonfigurasi dengan benar (`protected $proxies = '*';`) agar aplikasi mengenali request HTTPS dari proxy/load balancer.
-   - Cek konfigurasi `config/session.php` dan logic `.env`. Pastikan `SESSION_DOMAIN` dan `SECURE_COOKIE` dikonfigurasi agar tidak menolak cookie di production (masalah CSRF).
+Pastikan:
+- Menggunakan Sharp class versi terbaru
+- Tidak ada class deprecated
+- Signature method sesuai SharpForm / SharpEntityList
+- Semua `use` namespace BENAR
 
-3. **Berikan Solusi Code:**
-   - Jika ada kesalahan logic di Policy, perbaiki.
-   - Jika konfigurasi Proxy kurang, tambahkan kodenya.
+========================
+C. CRUD REQUIREMENTS
+========================
+USER:
+- List user (nama, email, role)
+- Create user
+- Update user
+- Delete user
+- Assign role ke user
+- Validasi form (email unique, required fields)
 
----
+ROLE:
+- List role
+- Create role
+- Update role
+- Delete role (dengan proteksi jika masih dipakai user)
 
-### BAGIAN 2: BRANDING REPLACEMENT (UI/UX)
-Saya sudah menyediakan file logo baru di path: `/public/icon.png`.
-Tugasmu adalah mengganti **SEMUA** logo default Laravel/Breeze/Jetstream dengan logo saya tersebut.
+========================
+D. SIDEBAR SHARP
+========================
+1. Tambahkan menu sidebar:
+   - Users
+   - Roles
+2. Kelompokkan menu secara rapi (misalnya: "Access Management").
+3. Pastikan menu muncul dan bisa diakses.
 
-Lakukan langkah ini:
-1. Scan folder `resources/views` (blade files).
-2. Scan folder `resources/js` (Components, Layouts, Pages - terutama folder `Components` seperti `ApplicationLogo.vue/jsx` atau `AuthenticationCardLogo.vue/jsx`).
-3. Cari tag `<svg>` yang berisi logo Laravel atau tag `<img>` yang mengarah ke logo default.
-4. Ganti semuanya menjadi tag `img` yang mengarah ke `/icon.png`.
-   - Contoh output yang diharapkan: `<img src="/icon.png" alt="Logo" class="..." />`
-   - Pastikan styling (class Tailwind) tetap dipertahankan agar ukuran logo tidak berantakan (tambahkan `w-auto h-10` atau yang sesuai jika perlu).
-5. Jangan lupa ganti juga favicon di `resources/views/app.blade.php` atau `welcome.blade.php` agar mengarah ke `/icon.png`.
+========================
+E. AUTHORIZATION (WAJIB)
+========================
+1. Hanya user dengan role tertentu (misalnya `admin`) yang bisa:
+   - Mengakses Sharp
+   - Mengelola user & role
+2. Gunakan Sharp authorization / Laravel policy yang benar.
+3. Jelaskan titik kontrol aksesnya.
 
----
+========================
+F. FILE & STRUKTUR
+========================
+Tampilkan struktur folder Sharp yang IDEAL:
+- app/Sharp/
+  - Users/
+  - Roles/
+  - SharpServiceProvider.php
+  - SharpMenu.php (jika digunakan)
 
-**Output yang diminta:**
-Jelaskan apa yang kamu temukan sebagai penyebab error 403, berikan kode perbaikannya, lalu list file mana saja yang sudah kamu ubah logonya.
+========================
+G. KODE FINAL
+========================
+Untuk setiap komponen:
+- Migration
+- Model
+- Sharp Entity List
+- Sharp Form
+- Sharp Configuration / Menu
+
+WAJIB:
+- Kode siap copy-paste
+- Tidak ada placeholder ambigu
+- Tidak ada pseudo-code
+- Tidak ada class deprecated
+
+========================
+H. STABILITAS & VERIFIKASI
+========================
+1. Sebutkan perintah terminal WAJIB setelah implementasi:
+   - migrate
+   - clear cache
+   - autoload
+2. Daftar error umum Sharp terkait Users/Roles dan solusinya.
+3. Checklist verifikasi akhir (login → sidebar → CRUD).
+
+========================
+BATASAN KERAS:
+- Jangan gunakan FormFieldsContainer
+- Jangan gunakan dokumentasi Sharp lama
+- Jangan menghilangkan langkah penting
+- Jangan memberikan solusi parsial
+
+OUTPUT:
+- Terstruktur
+- Rapi
+- Profesional
+- Fokus implementasi
+- Zero error

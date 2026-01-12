@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Spatie\Permission\Traits\HasRoles;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -54,13 +56,25 @@ class User extends Authenticatable
         return $this->hasMany(Habit::class);
     }
 
-    public function sentFriendRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function guardians(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Friendship::class, 'sender_id');
+        return $this->belongsToMany(User::class, 'student_guardians', 'student_id', 'guardian_id');
     }
 
-    public function receivedFriendRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function students(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Friendship::class, 'recipient_id');
+        return $this->belongsToMany(User::class, 'student_guardians', 'guardian_id', 'student_id');
+    }
+
+    // If user is a student
+    public function classroom(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'classroom_students', 'student_id', 'classroom_id');
+    }
+
+    // If user is a teacher
+    public function teacherClassrooms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Classroom::class, 'teacher_id');
     }
 }

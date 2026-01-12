@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(RoleSeeder::class);
+
         // Test User (Main)
         $user = User::factory()->create([
             'name' => 'Test User',
@@ -38,28 +40,6 @@ class DatabaseSeeder extends Seeder
             'description' => 'Run 5km every morning',
             'color' => '#10B981', // Emerald
             'frequency' => 'daily',
-        ]);
-
-        // Create a Habit for Friend User
-        $friendHabit = \App\Models\Habit::create([
-            'user_id' => $friend->id,
-            'title' => 'Read a Book',
-            'description' => '30 mins reading',
-            'color' => '#6366F1', // Indigo
-            'frequency' => 'daily',
-        ]);
-
-        // Connect them as friends
-        \App\Models\Friendship::create([
-            'sender_id' => $user->id,
-            'recipient_id' => $friend->id,
-            'status' => 'accepted',
-        ]);
-
-        // Share Friend's habit with Test User
-        \App\Models\HabitPermission::create([
-            'habit_id' => $friendHabit->id,
-            'viewer_id' => $user->id,
         ]);
     }
 }

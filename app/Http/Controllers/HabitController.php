@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Friendship;
 use App\Models\Habit;
 use App\Models\HabitLog;
 use Illuminate\Http\Request;
@@ -49,21 +48,7 @@ class HabitController extends Controller
 
     public function create()
     {
-        $userId = auth()->id();
-        $friends = Friendship::where(function ($query) use ($userId) {
-            $query->where('sender_id', $userId)
-                ->orWhere('recipient_id', $userId);
-        })
-            ->where('status', 'accepted')
-            ->with(['sender', 'recipient'])
-            ->get()
-            ->map(function ($friendship) use ($userId) {
-                return $friendship->sender_id === $userId ? $friendship->recipient : $friendship->sender;
-            });
-
-        return Inertia::render('Habit/Create', [
-            'friends' => $friends,
-        ]);
+        return Inertia::render('Habit/Create');
     }
 
     public function store(Request $request)
@@ -73,17 +58,11 @@ class HabitController extends Controller
             'description' => 'nullable|string',
             'color' => 'required|string',
             'frequency' => 'required|in:daily,weekly',
-            'shared_with' => 'nullable|array',
-            'shared_with.*' => 'exists:users,id',
         ]);
 
         $habit = $request->user()->habits()->create($validated);
 
-        if (!empty($validated['shared_with'])) {
-            $habit->permissions()->createMany(
-                collect($validated['shared_with'])->map(fn($id) => ['viewer_id' => $id])->toArray()
-            );
-        }
+
 
         return redirect()->route('habits.index');
     }
@@ -94,24 +73,8 @@ class HabitController extends Controller
             abort(403);
         }
 
-        $userId = auth()->id();
-        $friends = Friendship::where(function ($query) use ($userId) {
-            $query->where('sender_id', $userId)
-                ->orWhere('recipient_id', $userId);
-        })
-            ->where('status', 'accepted')
-            ->with(['sender', 'recipient'])
-            ->get()
-            ->map(function ($friendship) use ($userId) {
-                return $friendship->sender_id === $userId ? $friendship->recipient : $friendship->sender;
-            });
-
-        $habit->load('permissions');
-
         return Inertia::render('Habit/Edit', [
             'habit' => $habit,
-            'friends' => $friends,
-            'sharedWith' => $habit->permissions->pluck('viewer_id'),
         ]);
     }
 
@@ -127,19 +90,11 @@ class HabitController extends Controller
             'description' => 'nullable|string',
             'color' => 'required|string',
             'frequency' => 'required|in:daily,weekly',
-            'shared_with' => 'nullable|array',
-            'shared_with.*' => 'exists:users,id',
         ]);
 
         $habit->update($validated);
 
-        // Sync permissions
-        $habit->permissions()->delete();
-        if (!empty($validated['shared_with'])) {
-            $habit->permissions()->createMany(
-                collect($validated['shared_with'])->map(fn($id) => ['viewer_id' => $id])->toArray()
-            );
-        }
+
 
         return redirect()->route('habits.index');
     }

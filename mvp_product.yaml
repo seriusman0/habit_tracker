@@ -1,0 +1,187 @@
+laravel_role_based_structure:
+  roles:
+    - admin
+    - mentor
+    - student
+
+  goal:
+    - "Memisahkan area aplikasi per role agar kode terstruktur, mudah dipahami, dan tampilan/management tiap role bisa berbeda tanpa if-role berserakan."
+    - "Menggunakan route group + controller per area + view/layout terpisah + middleware role + (opsional) service layer."
+
+  folder_structure:
+    routes:
+      - routes/web.php
+      - routes/admin.php
+      - routes/mentor.php
+      - routes/student.php
+
+    controllers:
+      base_path: app/Http/Controllers
+      admin:
+        - app/Http/Controllers/Admin/DashboardController.php
+        - app/Http/Controllers/Admin/UserController.php
+      mentor:
+        - app/Http/Controllers/Mentor/DashboardController.php
+        - app/Http/Controllers/Mentor/CourseController.php
+      student:
+        - app/Http/Controllers/Student/DashboardController.php
+        - app/Http/Controllers/Student/CourseController.php
+
+    views:
+      base_path: resources/views
+      admin:
+        layouts:
+          - resources/views/admin/layouts/app.blade.php
+        pages:
+          - resources/views/admin/dashboard/index.blade.php
+        partials_optional:
+          - resources/views/admin/partials/sidebar.blade.php
+      mentor:
+        layouts:
+          - resources/views/mentor/layouts/app.blade.php
+        pages:
+          - resources/views/mentor/dashboard/index.blade.php
+        partials_optional:
+          - resources/views/mentor/partials/sidebar.blade.php
+      student:
+        layouts:
+          - resources/views/student/layouts/app.blade.php
+        pages:
+          - resources/views/student/dashboard/index.blade.php
+        partials_optional:
+          - resources/views/student/partials/sidebar.blade.php
+      shared_optional:
+        components:
+          - resources/views/components # shared UI components to reduce duplication
+
+    services_optional:
+      base_path: app/Services
+      examples:
+        - app/Services/CourseService.php
+        - app/Services/Reports/GenerateReportService.php
+
+    middleware:
+      base_path: app/Http/Middleware
+      role_middleware:
+        - app/Http/Middleware/RoleMiddleware.php
+
+  routing:
+    include_routes_in_web_php:
+      file: routes/web.php
+      requires:
+        - "require __DIR__.'/admin.php';"
+        - "require __DIR__.'/mentor.php';"
+        - "require __DIR__.'/student.php';"
+
+    route_groups:
+      admin:
+        file: routes/admin.php
+        middleware:
+          - auth
+          - "role:admin"
+        prefix: admin
+        name_prefix: "admin."
+        routes:
+          - method: GET
+            uri: /dashboard
+            action: "App\\Http\\Controllers\\Admin\\DashboardController@index"
+            name: dashboard
+          - note: "Tambahkan resource route sesuai kebutuhan, misal users."
+            example:
+              - method: RESOURCE
+                uri: /users
+                action: "App\\Http\\Controllers\\Admin\\UserController"
+                name: users.*
+
+      mentor:
+        file: routes/mentor.php
+        middleware:
+          - auth
+          - "role:mentor"
+        prefix: mentor
+        name_prefix: "mentor."
+        routes:
+          - method: GET
+            uri: /dashboard
+            action: "App\\Http\\Controllers\\Mentor\\DashboardController@index"
+            name: dashboard
+
+      student:
+        file: routes/student.php
+        middleware:
+          - auth
+          - "role:student"
+        prefix: student
+        name_prefix: "student."
+        routes:
+          - method: GET
+            uri: /dashboard
+            action: "App\\Http\\Controllers\\Student\\DashboardController@index"
+            name: dashboard
+
+  authorization:
+    approach:
+      - "Gunakan middleware untuk membatasi akses per area (admin/mentor/student)."
+      - "Gunakan Policy/Gate untuk kontrol aksi pada data (lebih granular), bukan if role di controller/view."
+    user_role_storage:
+      recommendation:
+        - "Simpan role pada kolom users.role (string/enum): admin|mentor|student"
+      note:
+        - "Jika nanti butuh permission kompleks, bisa migrasi ke paket permission (mis. Spatie)."
+
+  middleware_role:
+    creation:
+      artisan_command: "php artisan make:middleware RoleMiddleware"
+    logic:
+      description: "Memvalidasi role user terhadap role yang diizinkan pada route group."
+      code_reference:
+        namespace: App\Http\Middleware
+        class: RoleMiddleware
+        handle_signature: "handle(Request $request, Closure $next, ...$roles)"
+        behavior:
+          - "Ambil user dari request->user()"
+          - "Jika user tidak ada atau role tidak termasuk roles yang diizinkan: abort(403)"
+          - "Jika lolos: lanjut next()"
+
+    register_in_kernel:
+      file: app/Http/Kernel.php
+      alias:
+        role: "App\\Http\\Middleware\\RoleMiddleware::class"
+
+  views_and_layouts:
+    strategy:
+      - "Setiap role punya folder view sendiri agar tema/menu/layout bisa berbeda total."
+      - "Komponen yang sama dipindahkan ke resources/views/components."
+    example_layout_admin:
+      file: resources/views/admin/layouts/app.blade.php
+      contains:
+        - "Title khusus admin (Admin Panel)"
+        - "Vite assets"
+        - "Include sidebar admin"
+        - "@yield('content')"
+
+  post_login_redirect:
+    purpose: "Setelah login, user diarahkan ke dashboard sesuai role."
+    mapping:
+      admin: "route('admin.dashboard')"
+      mentor: "route('mentor.dashboard')"
+      student: "route('student.dashboard')"
+      default: "redirect('/')"
+    implementation_note:
+      - "Letakkan di handler login yang kamu pakai (Breeze/Jetstream/Fortify/custom)."
+
+  service_layer_optional:
+    purpose:
+      - "Mencegah controller tebal dan duplikasi logic antar role."
+      - "Controller fokus request/response; business logic di service."
+    guideline:
+      - "Jika admin/mentor/student memakai logic inti yang sama (misal Course), pakai service yang sama."
+      - "Jika alur benar-benar beda, buat service khusus role."
+
+  summary_best_practice:
+    checklist:
+      - "Pisahkan routes per role (admin.php, mentor.php, student.php)."
+      - "Pisahkan controllers per role (Controllers/Admin, Controllers/Mentor, Controllers/Student)."
+      - "Pisahkan views & layouts per role (views/admin, views/mentor, views/student)."
+      - "Kunci akses via middleware role + policy/gate."
+      - "Shared UI via components; shared logic via service."

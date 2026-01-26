@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\ClassroomResource\Pages;
+use App\Filament\Resources\ClassroomResource\RelationManagers;
+use App\Models\Classroom;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class ClassroomResource extends Resource
+{
+    protected static ?string $model = Classroom::class;
+
+    protected static ?string $modelLabel = 'Class';
+    protected static ?string $pluralModelLabel = 'Classes';
+    protected static ?string $navigationLabel = 'Classes';
+    protected static ?string $navigationGroup = 'Kelas & Assignment';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required(),
+                Forms\Components\Select::make('mentor_id')
+                    ->relationship('mentor', 'name', fn($query) => $query->role('mentor'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'ACTIVE' => 'Active',
+                        'ARCHIVED' => 'Archived',
+                    ])
+                    ->required()
+                    ->default('ACTIVE'),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('mentor.name')
+                    ->label('Mentor')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'ACTIVE' => 'success',
+                        'ARCHIVED' => 'gray',
+                        default => 'gray',
+                    })
+                    ->searchable(),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\StudentsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListClassrooms::route('/'),
+            'create' => Pages\CreateClassroom::route('/create'),
+            'edit' => Pages\EditClassroom::route('/{record}/edit'),
+        ];
+    }
+}

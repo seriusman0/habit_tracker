@@ -12,11 +12,14 @@ class HabitLog extends Model
         'status',
     ];
 
-    protected $casts = [
-        'date' => 'date',
-    ];
+    protected $guarded = [];
 
-    public function habit()
+    public function student(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function habit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Habit::class);
     }

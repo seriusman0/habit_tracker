@@ -12,8 +12,8 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="icon" href="/icon.png">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/img/logo.jpg">
+    <link rel="apple-touch-icon" href="/img/logo.jpg">
 
     <!-- Scripts -->
     @routes

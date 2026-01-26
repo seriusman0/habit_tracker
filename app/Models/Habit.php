@@ -10,30 +10,35 @@ class Habit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'student_id',
+        'category_id',
         'title',
         'description',
+        'target_time',
         'color',
         'frequency',
-        'is_archived',
+        'is_active',
+        'sort_order',
+        'created_by_user_id',
+        'updated_by_user_id',
     ];
 
     protected $casts = [
-        'is_archived' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
-    public function user()
+    public function student(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function logs()
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(HabitCategory::class, 'category_id');
+    }
+
+    public function logs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(HabitLog::class);
-    }
-
-    public function permissions()
-    {
-        return $this->hasMany(HabitPermission::class);
     }
 }

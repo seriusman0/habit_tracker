@@ -44,7 +44,7 @@ function handleImageError() {
                     <div class="flex lg:col-start-2 lg:justify-center">
                         <img
                             class="h-12 w-auto lg:h-16"
-                            src="/icon.png"
+                            src="/img/logo.jpg"
                             alt="Logo"
                         />
                     </div>

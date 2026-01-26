@@ -21,8 +21,7 @@ class RoleSeeder extends Seeder
 
         // create roles
         $roleAdmin = Role::create(['name' => 'admin']);
-        $roleTeacher = Role::create(['name' => 'teacher']);
-        $roleParent = Role::create(['name' => 'parent']);
+        $roleMentor = Role::create(['name' => 'mentor']);
         $roleStudent = Role::create(['name' => 'student']);
 
         // create default admin user

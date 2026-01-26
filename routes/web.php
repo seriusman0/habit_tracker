@@ -8,6 +8,16 @@ use Inertia\Inertia;
 Route::redirect('/', '/dashboard');
 
 Route::get('/dashboard', function () {
+    $user = auth()->user();
+    if ($user->hasRole('admin')) {
+        return redirect()->to('/admin');
+    }
+    if ($user->hasRole('mentor')) {
+        return redirect()->route('mentor.dashboard');
+    }
+    if ($user->hasRole('student')) {
+        return redirect()->route('student.dashboard');
+    }
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -21,3 +31,6 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/mentor.php';
+require __DIR__ . '/student.php';

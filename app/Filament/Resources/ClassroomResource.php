@@ -20,7 +20,7 @@ class ClassroomResource extends Resource
     protected static ?string $modelLabel = 'Class';
     protected static ?string $pluralModelLabel = 'Classes';
     protected static ?string $navigationLabel = 'Classes';
-    protected static ?string $navigationGroup = 'Kelas & Assignment';
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
@@ -29,7 +29,8 @@ class ClassroomResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required(),
                 Forms\Components\Select::make('mentor_id')
-                    ->relationship('mentor', 'name', fn($query) => $query->role('mentor'))
+                    ->label('Mentor (Homeroom Teacher)')
+                    ->relationship('mentor', 'name', fn($query) => $query->where('role', 'mentor'))
                     ->searchable()
                     ->preload()
                     ->required(),

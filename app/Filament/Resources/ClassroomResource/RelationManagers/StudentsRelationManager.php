@@ -31,36 +31,19 @@ class StudentsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'ACTIVE' => 'success',
-                        'INACTIVE' => 'gray',
-                        default => 'gray',
-                    }),
-                Tables\Columns\TextColumn::make('assigned_at')
-                    ->dateTime()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('geneticType.name')
+                    ->label('Genetic Type')
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->form(fn(Tables\Actions\AttachAction $action): array => [
-                        $action->getRecordSelect(),
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'ACTIVE' => 'Active',
-                                'INACTIVE' => 'Inactive',
-                            ])
-                            ->required()
-                            ->default('ACTIVE'),
-                    ])
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['assigned_by_admin_id'] = auth()->id();
-                        return $data;
-                    }),
+                    ->preloadRecordSelect()
+                    ->recordSelectSearchColumns(['name', 'email']),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

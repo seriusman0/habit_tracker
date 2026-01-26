@@ -17,6 +17,9 @@ class MentorFeedbackResource extends Resource
 {
     protected static ?string $model = MentorFeedback::class;
 
+    protected static ?string $navigationGroup = 'Administration';
+    protected static ?int $navigationSort = 14;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

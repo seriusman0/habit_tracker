@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HabitCategoryResource\Pages;
-use App\Filament\Resources\HabitCategoryResource\RelationManagers;
-use App\Models\HabitCategory;
+use App\Filament\Resources\GeneticTypeResource\Pages;
+use App\Filament\Resources\GeneticTypeResource\RelationManagers;
+use App\Models\GeneticType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,12 +13,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class HabitCategoryResource extends Resource
+class GeneticTypeResource extends Resource
 {
-    protected static ?string $model = HabitCategory::class;
+    protected static ?string $model = GeneticType::class;
 
     protected static ?string $navigationGroup = 'Administration';
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -27,7 +27,12 @@ class HabitCategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->maxLength(65535)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -37,6 +42,10 @@ class HabitCategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -46,7 +55,9 @@ class HabitCategoryResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -55,19 +66,10 @@ class HabitCategoryResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHabitCategories::route('/'),
-            'create' => Pages\CreateHabitCategory::route('/create'),
-            'edit' => Pages\EditHabitCategory::route('/{record}/edit'),
+            'index' => Pages\ManageGeneticTypes::route('/'),
         ];
     }
 }

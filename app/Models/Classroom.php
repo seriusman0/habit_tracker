@@ -15,8 +15,7 @@ class Classroom extends Model
 
     public function students(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'class_memberships', 'class_id', 'student_id')
-            ->withPivot(['status', 'assigned_by_admin_id', 'assigned_at', 'ended_at'])
+        return $this->belongsToMany(User::class, 'classroom_students', 'classroom_id', 'student_id')
             ->withTimestamps();
     }
 }

@@ -32,7 +32,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
-        'genetic_type',
+        'genetic_type_id',
     ];
 
     /**
@@ -76,14 +76,24 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // If user is a student
-    public function classroom(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function classrooms(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'classroom_students', 'student_id', 'classroom_id');
     }
 
-    // If user is a teacher
-    public function teacherClassrooms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    // If user is a mentor
+    public function mentorClassrooms(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Classroom::class, 'teacher_id');
+        return $this->hasMany(Classroom::class, 'mentor_id');
+    }
+
+    public function studentProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    public function geneticType(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(GeneticType::class);
     }
 }

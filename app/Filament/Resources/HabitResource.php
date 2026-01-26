@@ -18,17 +18,12 @@ class HabitResource extends Resource
     protected static ?string $model = Habit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'name', fn($query) => $query->role('student'))
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->live(),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category', 'name')
                     ->required()
@@ -38,7 +33,6 @@ class HabitResource extends Resource
                     ->required(),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
-                Forms\Components\TimePicker::make('target_time'),
                 Forms\Components\ColorPicker::make('color')
                     ->required(),
                 Forms\Components\Select::make('frequency')
@@ -51,9 +45,6 @@ class HabitResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->required()
                     ->default(true),
-                Forms\Components\TextInput::make('sort_order')
-                    ->numeric()
-                    ->default(0),
             ]);
     }
 
@@ -66,17 +57,11 @@ class HabitResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('student.name')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('frequency'),
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('target_time'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('student')
-                    ->relationship('student', 'name'),
                 Tables\Filters\SelectFilter::make('category')
                     ->relationship('category', 'name'),
             ])

@@ -20,6 +20,7 @@ class StudentResource extends Resource
     protected static ?string $modelLabel = 'Student';
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -44,13 +45,48 @@ class StudentResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Hidden::make('role')
                     ->default('student'),
-                Forms\Components\Select::make('genetic_type')
-                    ->options([
-                        'S' => 'S',
-                        'In' => 'In',
-                        'F' => 'F',
+                Forms\Components\Select::make('genetic_type_id')
+                    ->relationship('geneticType', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('description')
+                            ->maxLength(65535),
                     ])
                     ->required(),
+
+                Forms\Components\Section::make('Student Profile')
+                    ->relationship('studentProfile')
+                    ->schema([
+                        Forms\Components\DatePicker::make('birth_date')
+                            ->required(),
+                        Forms\Components\TextInput::make('school_name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('school_address')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('grade_level')
+                            ->numeric()
+                            ->required(),
+                        Forms\Components\Select::make('school_level')
+                            ->options([
+                                'SD' => 'SD',
+                                'SMP' => 'SMP',
+                                'SMA' => 'SMA',
+                            ])
+                            ->required(),
+                        Forms\Components\TextInput::make('guardian_name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('guardian_phone')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
+                    ]),
             ]);
     }
 
@@ -62,7 +98,8 @@ class StudentResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('genetic_type')
+                Tables\Columns\TextColumn::make('geneticType.name')
+                    ->label('Genetic Type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

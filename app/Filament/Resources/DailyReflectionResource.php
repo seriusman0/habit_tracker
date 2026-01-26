@@ -17,6 +17,9 @@ class DailyReflectionResource extends Resource
 {
     protected static ?string $model = DailyReflection::class;
 
+    protected static ?string $navigationGroup = 'Administration';
+    protected static ?int $navigationSort = 13;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

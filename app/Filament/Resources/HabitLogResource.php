@@ -17,6 +17,9 @@ class HabitLogResource extends Resource
 {
     protected static ?string $model = HabitLog::class;
 
+    protected static ?string $navigationGroup = 'Administration';
+    protected static ?int $navigationSort = 12;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

@@ -10,15 +10,12 @@ class Habit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
         'category_id',
         'title',
         'description',
-        'target_time',
         'color',
         'frequency',
         'is_active',
-        'sort_order',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -26,11 +23,6 @@ class Habit extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
-
-    public function student(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(User::class, 'student_id');
-    }
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -41,4 +41,11 @@ class Habit extends Model
     {
         return $this->belongsTo(User::class, 'student_id');
     }
+
+    public function students(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'habit_user', 'habit_id', 'student_id')
+            ->withPivot(['color', 'frequency', 'is_active'])
+            ->withTimestamps();
+    }
 }

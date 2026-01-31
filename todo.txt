@@ -1,33 +1,23 @@
-Tambahkan fitur delete pada setiap item di bagian Assigned Habits. Pastikan setiap habit yang ter-assign kepada Student User dapat dihapus secara individual dengan cara klik tombol delete di samping setiap habit. Setelah tombol delete diklik, pastikan habit yang terpilih dihapus dari daftar dan database secara permanen.
+1. **Pemeriksaan Migrasi dan Seeder Sebelum Reset:**
+    - **Periksa** apakah struktur migrasi di **migration files** sesuai dengan implementasi terbaru.
+    - **Periksa** apakah **seeder** yang ada (misalnya `UsersTableSeeder`, `RolesTableSeeder`, dll.) sesuai dengan model dan relasi yang ada di aplikasi.
+    - **Verifikasi** apakah relasi antara **User**, **Role**, dan **Permission** sudah dikelola sepenuhnya oleh **Spatie** dan tidak lagi memerlukan penyimpanan `user.role` di tabel **users**.
+    - Pastikan tidak ada **data yang duplikat** atau **data yang gagal disesuaikan** antara tabel yang ada dengan implementasi terbaru.
 
-Langkah-langkah yang perlu dilakukan:
+2. **Pembersihan `user.role`:**
+    - **Hapus kolom `role`** di tabel **users** jika sudah tidak diperlukan, karena peran sudah sepenuhnya ditangani oleh **Spatie**.
+    - Verifikasi bahwa **Role** dan **Permission** diatur oleh **Spatie** dan pastikan bahwa penanganannya sudah tepat di dalam **model User** dan **model Role**.
+    - Pastikan tidak ada **conflict** antara relasi Spatie dan kolom yang sudah ada di tabel `users`.
 
-Tambahkan Tombol Delete:
+3. **Evaluasi dan Penyesuaian Seeder:**
+    - Periksa apakah **seeder** yang ada menyesuaikan dengan data yang diperlukan untuk **migrasi ulang**.
+    - **Sesuaikan** seeder jika perlu, pastikan **data yang dimasukkan ke tabel** sesuai dengan struktur dan relasi yang sudah diperbarui (misalnya, Role, Permission).
+    - Pastikan **data default** seperti Role dan Permission tidak bertabrakan dengan data yang ada pada saat ini.
 
-Untuk setiap item di kolom Assigned Habits, tambahkan tombol delete di samping habit tersebut (gunakan ikon sampah atau tombol bertuliskan "Delete").
+4. **Jalankan Pemeriksaan Migrasi:**
+    - Lakukan **php artisan migrate:status** untuk memverifikasi status migrasi yang ada dan pastikan semua migrasi sudah sesuai.
+    - Gunakan **php artisan migrate:fresh --seed** untuk mereset migrasi dan mengisi tabel dengan data yang sudah benar.
 
-Event Delete:
-
-Tambahkan event handler untuk tombol delete. Saat tombol diklik, habit yang terkait dengan Student User tersebut harus dihapus.
-
-Gunakan Livewire atau Vue.js (tergantung stack yang digunakan) untuk memanage state dan memastikan data terhapus secara dinamis.
-
-Update Database:
-
-Pastikan habit yang dihapus juga dihapus dari database. Gunakan model yang sesuai untuk menghapus data habit tersebut, misalnya Habit::find($habitId)->delete().
-
-Tampilkan Pembaruan UI:
-
-Setelah dihapus, pastikan tampilan UI langsung diperbarui dan habit yang dihapus tidak lagi tampil di daftar Assigned Habits.
-
-Pastikan daftar Assigned Habits tetap teratur dan terupdate tanpa perlu reload halaman.
-
-Pastikan Keamanan:
-
-Verifikasi bahwa hanya habit yang ter-assign ke siswa tersebut yang dapat dihapus, dan tidak ada habit yang tidak terkait yang dapat dihapus.
-
-Verifikasi Fungsi Responsif:
-
-Pastikan tombol delete dapat diakses dan berfungsi dengan baik pada perangkat kecil maupun besar.
-
-Implementasi fitur ini harus memastikan penghapusan habit dilakukan dengan aman dan UI tetap responsif serta tidak ada duplikasi data setelah penghapusan.
+5. **Validasi Aplikasi Setelah Reset:**
+    - Setelah menjalankan `migrate:fresh --seed`, lakukan pengecekan aplikasi untuk memastikan **semua relasi** dan **data** sudah benar dan tidak ada **error** pada penggunaan **Role** dan **Permission**.
+    - Pastikan tidak ada **konflik** atau **kesalahan** pada aplikasi dan migrasi setelah proses reset dilakukan.

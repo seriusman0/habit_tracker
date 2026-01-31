@@ -72,9 +72,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     /**
      * Get the habits for the user.
      */
-    public function habits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function habits(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Habit::class, 'student_id');
+        return $this->belongsToMany(Habit::class, 'habit_user', 'student_id', 'habit_id')
+            ->withPivot(['color', 'frequency', 'is_active'])
+            ->withTimestamps();
     }
 
     /**

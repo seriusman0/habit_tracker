@@ -80,15 +80,11 @@ class HabitAssignmentWidget extends Widget
             return;
         }
 
-        // Check for duplication
-        $exists = Habit::where('student_id', $student->id)
-            ->where('title', $template->title)
-            ->where('category_id', $template->category_id)
-            ->exists();
+        // Check for duplication in pivot
+        $exists = $student->habits()->where('habit_id', $template->id)->exists();
 
         if ($exists) {
             $this->dispatch('habit-assignment-failed', message: "Habit '{$template->title}' already assigned to {$student->name}");
-            // We can also use Filament notification if preferred, but dispatch works for custom frontend feedback
             \Filament\Notifications\Notification::make()
                 ->title('Duplicate Habit')
                 ->body("Habit '{$template->title}' is already assigned to {$student->name}.")
@@ -97,16 +93,11 @@ class HabitAssignmentWidget extends Widget
             return;
         }
 
-        // Create new habit for the student based on template
-        Habit::create([
-            'student_id' => $student->id,
-            'title' => $template->title,
-            'description' => $template->description,
-            'category_id' => $template->category_id,
+        // Attach template to student (Many-to-Many)
+        $student->habits()->attach($template->id, [
             'color' => $template->color,
             'frequency' => $template->frequency,
             'is_active' => true,
-            'created_by_user_id' => Auth::id(),
         ]);
 
         $this->dispatch('habit-assigned', message: "Assigned '{$template->title}' to {$student->name}");
@@ -134,13 +125,50 @@ class HabitAssignmentWidget extends Widget
                     return [
                         'id' => $habit->id,
                         'title' => $habit->title,
-                        'color' => $habit->color,
-                        'frequency' => $habit->frequency,
+                        'color' => $habit->pivot->color ?? $habit->color, // Use pivot override if available
+                        'frequency' => $habit->pivot->frequency ?? $habit->frequency,
                         'category_name' => $habit->category?->name ?? 'Uncategorized',
                     ];
                 })->toArray();
         } else {
             $this->selectedStudentHabits = [];
         }
+    }
+
+    public function deleteHabit($habitId)
+    {
+        $habit = Habit::find($habitId);
+
+        if (!$habit) {
+            return;
+        }
+
+        $student = User::find($this->selectedStudentId);
+        if (!$student) {
+            return;
+        }
+
+        // Security: Ensure the habit is assigned to the selected student
+        if (!$student->habits()->where('habit_id', $habitId)->exists()) {
+            \Filament\Notifications\Notification::make()
+                ->title('Unauthorized Action')
+                ->body("You cannot delete this habit.")
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Detach instead of deleting the habit record
+        $student->habits()->detach($habitId);
+
+        \Filament\Notifications\Notification::make()
+            ->title('Habit Removed')
+            ->body("Habit '{$habit->title}' has been removed from this student.")
+            ->success()
+            ->send();
+
+        // Refresh UI
+        $this->loadData(); // Updates student habit counts
+        $this->selectStudent($this->selectedStudentId); // Updates the list
     }
 }

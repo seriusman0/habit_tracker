@@ -30,11 +30,20 @@ class HabitController extends Controller
             $categoryId = $category->id;
         }
 
-        Habit::create([
+        $habit = Habit::create([
             'student_id' => $studentId,
             'category_id' => $categoryId,
             'title' => $validated['title'],
             'is_active' => true,
+            // 'color' => default?
+            // 'frequency' => default 'daily'?
+        ]);
+
+        // Attach to pivot so it appears in the student's list
+        auth()->user()->habits()->attach($habit->id, [
+            'is_active' => true,
+            'frequency' => 'daily', // Default
+            'color' => '#3b82f6', // Default blue
         ]);
 
         return back();
@@ -42,12 +51,16 @@ class HabitController extends Controller
 
     public function toggle(Request $request, Habit $habit)
     {
-        if ($habit->student_id !== auth()->id()) {
+        if ($habit->student_id !== auth()->id() && !auth()->user()->habits()->where('habit_id', $habit->id)->exists()) {
             abort(403);
         }
 
         $today = now()->toDateString();
-        $log = $habit->logs()->whereDate('log_date', $today)->first();
+        // Ensure we only touch the current student's log
+        $log = $habit->logs()
+            ->where('student_id', auth()->id())
+            ->whereDate('log_date', $today)
+            ->first();
 
         if ($log) {
             // Toggle Logic: If completed -> delete (reset). If failed -> delete? 

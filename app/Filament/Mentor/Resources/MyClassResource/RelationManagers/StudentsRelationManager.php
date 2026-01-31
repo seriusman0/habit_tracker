@@ -79,16 +79,26 @@ class StudentsRelationManager extends RelationManager
                             ->required(),
                     ])
                     ->action(function (array $data, \App\Models\User $record) {
-                        // $record here is the STUDENT User model
-                        Habit::create([
-                            'student_id' => $record->id,
+                        // Find or create a template habit (student_id is null)
+                        $habit = Habit::firstOrCreate([
                             'title' => $data['title'],
                             'category_id' => $data['category_id'],
-                            'color' => $data['color'],
-                            'frequency' => $data['frequency'],
+                            'student_id' => null, // Ensure it's a template
+                        ], [
+                            'color' => $data['color'], // Default template color
+                            'frequency' => $data['frequency'], // Default template frequency
                             'is_active' => true,
                             'created_by_user_id' => Auth::id(),
                         ]);
+
+                        // Check if already assigned
+                        if (!$record->habits()->where('habit_id', $habit->id)->exists()) {
+                            $record->habits()->attach($habit->id, [
+                                'color' => $data['color'],
+                                'frequency' => $data['frequency'],
+                                'is_active' => true,
+                            ]);
+                        }
 
                         \Filament\Notifications\Notification::make()
                             ->title('Habit assigned to ' . $record->name)
@@ -118,16 +128,27 @@ class StudentsRelationManager extends RelationManager
                             ->nullable(),
                     ])
                     ->action(function (Collection $records, array $data) {
+                        // Find or create template
+                        $habit = Habit::firstOrCreate([
+                            'title' => $data['title'],
+                            'category_id' => $data['category_id'],
+                            'student_id' => null,
+                        ], [
+                            'frequency' => $data['frequency'], // Default template frequency
+                            // Color not in bulk form? Check Step 19: Form only has title, frequency, category.
+                            'color' => '#3b82f6', // Default blue if not provided
+                            'is_active' => true,
+                            'created_by_user_id' => Auth::id(),
+                        ]);
+
                         foreach ($records as $student) {
-                            Habit::create([
-                                'student_id' => $student->id,
-                                'title' => $data['title'],
-                                'category_id' => $data['category_id'],
-                                'color' => $data['color'],
-                                'frequency' => $data['frequency'],
-                                'is_active' => true,
-                                'created_by_user_id' => Auth::id(),
-                            ]);
+                            if (!$student->habits()->where('habit_id', $habit->id)->exists()) {
+                                $student->habits()->attach($habit->id, [
+                                    'frequency' => $data['frequency'],
+                                    'color' => $habit->color, // Use template color
+                                    'is_active' => true,
+                                ]);
+                            }
                         }
 
                         \Filament\Notifications\Notification::make()

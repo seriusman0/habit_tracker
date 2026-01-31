@@ -146,7 +146,7 @@
                     @if(count($selectedStudentHabits) > 0)
                     <div class="grid gap-3">
                         @foreach($selectedStudentHabits as $habit)
-                        <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background-color: {{ $habit['color'] }}20; color: {{ $habit['color'] }}">
                                     <span class="font-bold text-lg">{{ substr($habit['title'], 0, 1) }}</span>
@@ -164,6 +164,13 @@
                                     </div>
                                 </div>
                             </div>
+                            <button
+                                wire:click="deleteHabit({{ $habit['id'] }})"
+                                wire:confirm="Are you sure you want to delete this habit?"
+                                class="text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-red-50 transition-colors"
+                                title="Delete Habit">
+                                <x-heroicon-o-trash class="w-5 h-5" />
+                            </button>
                         </div>
                         @endforeach
                     </div>

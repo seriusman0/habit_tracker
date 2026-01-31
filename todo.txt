@@ -1,23 +1,56 @@
-1. **Pemeriksaan Migrasi dan Seeder Sebelum Reset:**
-    - **Periksa** apakah struktur migrasi di **migration files** sesuai dengan implementasi terbaru.
-    - **Periksa** apakah **seeder** yang ada (misalnya `UsersTableSeeder`, `RolesTableSeeder`, dll.) sesuai dengan model dan relasi yang ada di aplikasi.
-    - **Verifikasi** apakah relasi antara **User**, **Role**, dan **Permission** sudah dikelola sepenuhnya oleh **Spatie** dan tidak lagi memerlukan penyimpanan `user.role` di tabel **users**.
-    - Pastikan tidak ada **data yang duplikat** atau **data yang gagal disesuaikan** antara tabel yang ada dengan implementasi terbaru.
+**Analisis dan Tujuan:**
 
-2. **Pembersihan `user.role`:**
-    - **Hapus kolom `role`** di tabel **users** jika sudah tidak diperlukan, karena peran sudah sepenuhnya ditangani oleh **Spatie**.
-    - Verifikasi bahwa **Role** dan **Permission** diatur oleh **Spatie** dan pastikan bahwa penanganannya sudah tepat di dalam **model User** dan **model Role**.
-    - Pastikan tidak ada **conflict** antara relasi Spatie dan kolom yang sudah ada di tabel `users`.
+Dari tampilan ini, saya mengerti bahwa Anda ingin menambahkan fungsi **Refleksi Hari Ini** yang hanya bisa dipilih dengan klik, dan kemudian data yang dipilih harus disimpan dalam model **DailyReflection**. Selain itu, setelah halaman dimuat, Anda ingin memastikan bahwa **tanggal** diperiksa, dan jika tanggal sudah berganti, maka **reset data** harus dilakukan. Dengan ini, setiap kali halaman dimuat, hanya refleksi untuk hari tersebut yang boleh disimpan, dan begitu tanggal berganti, data refleksi sebelumnya harus dihapus atau diset ulang.
 
-3. **Evaluasi dan Penyesuaian Seeder:**
-    - Periksa apakah **seeder** yang ada menyesuaikan dengan data yang diperlukan untuk **migrasi ulang**.
-    - **Sesuaikan** seeder jika perlu, pastikan **data yang dimasukkan ke tabel** sesuai dengan struktur dan relasi yang sudah diperbarui (misalnya, Role, Permission).
-    - Pastikan **data default** seperti Role dan Permission tidak bertabrakan dengan data yang ada pada saat ini.
+**Langkah-langkah yang perlu dilakukan:**
 
-4. **Jalankan Pemeriksaan Migrasi:**
-    - Lakukan **php artisan migrate:status** untuk memverifikasi status migrasi yang ada dan pastikan semua migrasi sudah sesuai.
-    - Gunakan **php artisan migrate:fresh --seed** untuk mereset migrasi dan mengisi tabel dengan data yang sudah benar.
+1. **Modifikasi tampilan "Refleksi Hari Ini"**:
 
-5. **Validasi Aplikasi Setelah Reset:**
-    - Setelah menjalankan `migrate:fresh --seed`, lakukan pengecekan aplikasi untuk memastikan **semua relasi** dan **data** sudah benar dan tidak ada **error** pada penggunaan **Role** dan **Permission**.
-    - Pastikan tidak ada **konflik** atau **kesalahan** pada aplikasi dan migrasi setelah proses reset dilakukan.
+   * Tambahkan interaksi klik pada elemen **Refleksi Hari Ini** (Senang, Biasa, Sedih).
+   * Setiap klik akan menyimpan pilihan tersebut pada model **DailyReflection**.
+
+2. **Integrasi dengan Model DailyReflection**:
+
+   * Implementasikan penyimpanan pilihan pengguna pada model **DailyReflection**.
+   * Pastikan setiap pilihan disimpan dengan waktu (timestamp) agar bisa dicek untuk reset berdasarkan tanggal.
+
+3. **Pemeriksaan Tanggal**:
+
+   * Setiap kali halaman dimuat, periksa apakah tanggal saat ini sudah berganti.
+   * Jika sudah berganti, lakukan **reset data refleksi** sehingga pengguna dapat memilih refleksi untuk tanggal yang baru.
+
+---
+
+**Prompt untuk AI**:
+
+```
+Tolong implementasikan fitur berikut untuk halaman **Refleksi Hari Ini** pada UI:
+
+1. **Interaksi Klik pada Refleksi Hari Ini**:
+   - Pastikan elemen "Senang", "Biasa", dan "Sedih" dapat diklik. 
+   - Ketika elemen ini diklik, pilihan pengguna harus disimpan dalam model **DailyReflection**.
+   - Setiap pilihan harus disertai dengan **timestamp** yang sesuai (tanggal dan waktu saat klik dilakukan).
+   
+2. **Penyimpanan Data pada Model DailyReflection**:
+   - Buat relasi yang menyimpan data refleksi dalam model **DailyReflection**.
+   - Setiap entri dalam model ini harus memuat informasi: **user_id**, **emotion (Senang/Biasa/Sedih)**, dan **date**.
+   - Periksa apakah data refleksi sudah ada untuk hari tersebut, jika sudah, maka update, jika belum, buat entri baru.
+
+3. **Pemeriksaan dan Reset Berdasarkan Tanggal**:
+   - Setiap kali halaman ini dimuat, lakukan pemeriksaan untuk melihat apakah tanggal hari ini sudah berganti.
+   - Jika tanggal sudah berganti, lakukan **reset** pada data refleksi, artinya hapus atau nonaktifkan entri refleksi yang lama sehingga pengguna bisa memilih refleksi untuk hari yang baru.
+   
+4. **Pastikan UI Konsisten**:
+   - Setelah perubahan ini diterapkan, pastikan UI masih berfungsi dengan baik, dengan refleksi yang ter-update untuk hari yang baru dan hanya dapat diubah berdasarkan tanggal yang valid.
+   
+5. **Implementasi Berdasarkan Project yang Ada**:
+   - Pastikan untuk mempelajari terlebih dahulu struktur model dan logika yang ada dalam project ini, seperti hubungan antara model **User**, **Habit**, dan **DailyReflection**, agar implementasi ini tidak bertentangan dengan fungsionalitas yang sudah ada dan tidak mengganggu fitur lain yang telah dikembangkan.
+
+Jangan lakukan perubahan besar-besaran yang mengganggu fitur yang lain, pastikan semua fungsi berjalan dengan mulus dan tidak ada error.
+
+Implementasikan logika ini dengan hati-hati dan pastikan untuk menguji semua bagian dengan baik.
+```
+
+---
+
+**Catatan**: Pastikan untuk memverifikasi bahwa implementasi ini benar-benar mematuhi prinsip yang sudah ada dalam project sebelumnya, dan setiap langkah sudah diintegrasikan dengan baik dalam sistem yang ada, terutama dalam hal interaksi dan penyimpanan data.

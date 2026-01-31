@@ -16,7 +16,7 @@ class MyClassResource extends Resource
 {
     protected static ?string $model = Classroom::class;
 
-    protected static ?string $slug = 'my-class';
+    protected static ?string $slug = 'my-classes';
 
     protected static ?string $modelLabel = 'My Class';
     protected static ?string $pluralModelLabel = 'My Classes';

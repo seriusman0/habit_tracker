@@ -43,7 +43,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'username',
         'email',
         'password',
-        'role',
         'genetic_type_id',
     ];
 

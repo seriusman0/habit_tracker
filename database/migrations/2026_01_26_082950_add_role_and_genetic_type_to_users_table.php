@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->nullable()->after('password'); // or default('student') if preferred
-            $table->string('genetic_type')->nullable()->after('role'); // S, In, F
+            // $table->string('role')->nullable()->after('password'); // REMOVED: Managed by Spatie
+            $table->string('genetic_type')->nullable()->after('password'); // S, In, F
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['role', 'genetic_type']);
+            $table->dropColumn(['genetic_type']);
         });
     }
 };

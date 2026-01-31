@@ -19,6 +19,7 @@ import {
     Home,
     User,
     Circle,
+    LogOut,
 } from "lucide-vue-next";
 import { ref, computed } from "vue";
 
@@ -95,6 +96,10 @@ const getIcon = (categoryName) => {
     if (lower.includes("belajar") || lower.includes("sekolah")) return BookOpen;
     return Circle; // Default
 };
+
+const logout = () => {
+    useForm({}).post(route("logout"));
+};
 </script>
 
 <template>
@@ -108,11 +113,17 @@ const getIcon = (categoryName) => {
         >
             <!-- Header -->
             <header
-                class="bg-white dark:bg-gray-700 px-6 py-5 border-b border-gray-200 dark:border-gray-600 sticky top-0 z-20"
+                class="bg-white dark:bg-gray-700 px-6 py-5 border-b border-gray-200 dark:border-gray-600 sticky top-0 z-20 flex justify-between items-center"
             >
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     Kebiasaanku
                 </h1>
+                <button
+                    @click="logout"
+                    class="text-gray-500 hover:text-red-500 transition-colors"
+                >
+                    <LogOut class="w-6 h-6" />
+                </button>
             </header>
 
             <!-- Main Content -->
@@ -377,31 +388,49 @@ const getIcon = (categoryName) => {
                         </Link>
                     </li>
                     <li class="flex-1">
-                        <a
-                            class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
-                            href="#"
+                        <Link
+                            :class="{
+                                'text-indigo-600': route().current(
+                                    'student.friends.index',
+                                ),
+                                'text-gray-500 dark:text-gray-400':
+                                    !route().current('student.friends.index'),
+                            }"
+                            class="flex flex-col items-center justify-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
+                            :href="route('student.friends.index')"
                         >
                             <Users class="w-6 h-6 mb-1" />
                             <span class="text-[10px] font-medium">Teman</span>
-                        </a>
+                        </Link>
                     </li>
                     <li class="flex-1">
-                        <a
-                            class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
+                        <Link
+                            :class="{
+                                'text-indigo-600': false,
+                                'text-gray-500 dark:text-gray-400': true,
+                            }"
+                            class="flex flex-col items-center justify-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
                             href="#"
                         >
                             <Home class="w-6 h-6 mb-1" />
                             <span class="text-[10px] font-medium">Beranda</span>
-                        </a>
+                        </Link>
                     </li>
                     <li class="flex-1">
-                        <a
-                            class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
-                            href="#"
+                        <Link
+                            :class="{
+                                'text-indigo-600': route().current(
+                                    'student.profile.edit',
+                                ),
+                                'text-gray-500 dark:text-gray-400':
+                                    !route().current('student.profile.edit'),
+                            }"
+                            class="flex flex-col items-center justify-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
+                            :href="route('student.profile.edit')"
                         >
                             <User class="w-6 h-6 mb-1" />
                             <span class="text-[10px] font-medium">Profil</span>
-                        </a>
+                        </Link>
                     </li>
                 </ul>
             </nav>

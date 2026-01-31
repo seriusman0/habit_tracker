@@ -12,55 +12,66 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $studentId = auth()->id();
+        $user = auth()->user();
+        $studentId = $user->id;
         $today = now()->toDateString();
 
-        // Fetch categories with active habits for the student
-        $categories = HabitCategory::where('student_id', $studentId)
-            ->with(['habits' => function ($query) use ($studentId, $today) {
-                $query->where('student_id', $studentId)
-                    ->where('is_active', true)
-                    ->orderBy('sort_order')
-                    ->with(['logs' => function ($q) use ($today) {
-                        $q->whereDate('log_date', $today);
-                    }]);
+        // 1. Fetch Habits assigned via Pivot (Drag & Drop)
+        $assignedHabits = $user->habits()
+            // Check pivot active status if column exists, otherwise assume habit is active
+            // The relationship 'habits' in User model includes withPivot(['is_active'])
+            ->wherePivot('is_active', true)
+            ->with(['category', 'logs' => function ($query) use ($today) {
+                $query->whereDate('log_date', $today);
             }])
-            ->orderBy('sort_order')
             ->get()
-            ->map(function ($category) {
-                $category->habits->transform(function ($habit) {
-                    $habit->todays_log = $habit->logs->first();
-                    unset($habit->logs);
-                    return $habit;
-                });
-                return $category;
+            ->each(function ($habit) {
+                // Override attributes with pivot data if available
+                if ($habit->pivot) {
+                    $habit->color = $habit->pivot->color ?? $habit->color;
+                    $habit->frequency = $habit->pivot->frequency ?? $habit->frequency;
+                }
             });
 
-        // Also fetch habits that don't belong to any category (uncategorized)
-        $uncategorizedHabits = \App\Models\Habit::where('student_id', $studentId)
-            ->whereNull('category_id')
+        // 2. Fetch Habits directly owned (student_id = user_id)
+        $ownedHabits = \App\Models\Habit::where('student_id', $studentId)
             ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->with(['logs' => function ($q) use ($today) {
-                $q->whereDate('log_date', $today);
+            ->with(['category', 'logs' => function ($query) use ($today) {
+                $query->whereDate('log_date', $today);
             }])
-            ->get()
+            ->get();
+
+        // 3. Merge and formatting
+        $allHabits = $assignedHabits->merge($ownedHabits)
+            ->unique('id') // Prevent duplicates if somehow linked both ways
             ->transform(function ($habit) {
                 $habit->todays_log = $habit->logs->first();
                 unset($habit->logs);
                 return $habit;
             });
 
-        if ($uncategorizedHabits->isNotEmpty()) {
-            // Create a pseudo-category for display
-            $defaultCategory = new HabitCategory([
-                'id' => null,
-                'name' => 'General Habits',
-                'sort_order' => 999
-            ]);
-            $defaultCategory->setRelation('habits', $uncategorizedHabits);
-            $categories->push($defaultCategory);
-        }
+        // 4. Group by Category
+        $categories = $allHabits->groupBy(function ($habit) {
+            return $habit->category_id ?? 'uncategorized';
+        })->map(function ($habits, $categoryId) {
+            if ($categoryId === 'uncategorized') {
+                return [
+                    'id' => null,
+                    'name' => 'General Habits',
+                    'habits' => $habits->values()->toArray(),
+                    'sort_order' => 999
+                ];
+            }
+
+            $category = $habits->first()->category;
+            return [
+                'id' => $categoryId,
+                'name' => $category->name,
+                'habits' => $habits->sortBy('sort_order')->values()->toArray(),
+                // Use a default sort order if category doesn't have one, or 0
+                'sort_order' => $category->sort_order ?? 0
+            ];
+        })->sortBy('sort_order')->values();
 
         $todaysReflection = DailyReflection::where('student_id', $studentId)
             ->whereDate('ref_date', $today)

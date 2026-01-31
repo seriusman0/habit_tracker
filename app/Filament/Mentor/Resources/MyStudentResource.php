@@ -15,7 +15,7 @@ class MyStudentResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $slug = 'my-student';
+    protected static ?string $slug = 'my-students';
 
     protected static ?string $modelLabel = 'My Student';
     protected static ?string $pluralModelLabel = 'My Students';
@@ -66,7 +66,7 @@ class MyStudentResource extends Resource
     {
         // Get students belonging to classes where auth user is mentor
         return parent::getEloquentQuery()
-            ->where('role', 'student')
+            ->role('student')
             ->whereHas('classrooms', function ($query) {
                 $query->where('mentor_id', auth()->id());
             });

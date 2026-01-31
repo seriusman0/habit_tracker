@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#4F46E5">
     <link rel="manifest" href="/manifest.json">
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'Jurnal YKDE | Rumah Belajar') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

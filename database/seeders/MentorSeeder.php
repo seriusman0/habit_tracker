@@ -22,6 +22,15 @@ class MentorSeeder extends Seeder
         ]);
         $mentor->assignRole('mentor');
 
+        // Test Mentor 5 (Requested for validation)
+        $mentor5 = User::factory()->create([
+            'name' => 'Mentor 5',
+            'username' => 'mentor5',
+            'email' => 'mentor5@gmail.com',
+            'password' => Hash::make('password'),
+        ]);
+        $mentor5->assignRole('mentor');
+
         // Create some random mentors
         User::factory()->count(5)->create()->each(function ($user) {
             $user->assignRole('mentor');

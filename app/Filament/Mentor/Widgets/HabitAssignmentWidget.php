@@ -6,38 +6,47 @@ use App\Models\Habit;
 use App\Models\HabitCategory;
 use App\Models\User;
 use Filament\Widgets\Widget;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 
 class HabitAssignmentWidget extends Widget
 {
     protected static string $view = 'filament.mentor.widgets.habit-assignment-widget';
     protected int | string | array $columnSpan = 'full';
 
-    public ?int $classrowId = null;
-    public $students = [];
-    public $categories = [];
+    public ?Model $record = null; // This will hold the Classroom record
 
-    // This property will be passed from the Action
-    public $record = null;
+    public $students = [];
+    public $categories = []; // Templates grouped by category
 
     public $selectedStudentId = null;
     public $selectedStudentHabits = [];
 
     public function mount()
     {
-        // Load Templates (Habits that don't belong to a specific student, or belong to admin/mentor as templates)
-        // For this MVP, we'll assume "Templates" are habits created by the current user (Mentor) but with NULL student_id
-        // OR we can just pick from a list of predefined habits if they exist.
-        // Let's go with: Templates are habits where student_id is NULL.
+        // Load Templates (Habits that don't belong to a specific student)
+        $this->loadTemplates();
 
-        $this->loadData();
+        // If we are on a page with a record (Classroom), load its students
+        if ($this->record && method_exists($this->record, 'students')) {
+            $this->students = $this->record->students()
+                ->role('student')
+                ->get()
+                ->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                        'email' => $student->email,
+                    ];
+                })
+                ->toArray();
+        }
     }
 
-    public function loadData()
+    public function loadTemplates()
     {
+        // Get habits that are "templates" (student_id is null)
         $this->categories = HabitCategory::with(['habits' => function ($query) {
-            // Fetch habits that act as templates (student_id is null)
             $query->whereNull('student_id');
         }])
             ->get()
@@ -56,78 +65,34 @@ class HabitAssignmentWidget extends Widget
                 ];
             })
             ->toArray();
-
-        // If record (Classroom) is passed, get students
-        if ($this->record) {
-            $this->students = $this->record->students()->get()->map(function ($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => $student->name,
-                    'email' => $student->email,
-                    'avatar' => $student->getFilamentAvatarUrl(), // Helper if exists, or null
-                    'habits_count' => $student->habits()->count(),
-                ];
-            })->toArray();
-        }
     }
 
-    public function assignHabit($templateId, $studentId)
+    public function updatedSelectedStudentId()
     {
-        $template = Habit::find($templateId);
-        $student = User::find($studentId);
+        $this->loadStudentHabits();
+    }
 
-        if (!$template || !$student) {
+    public function loadStudentHabits()
+    {
+        if (!$this->selectedStudentId) {
+            $this->selectedStudentHabits = [];
             return;
         }
 
-        // Check for duplication in pivot
-        $exists = $student->habits()->where('habit_id', $template->id)->exists();
-
-        if ($exists) {
-            $this->dispatch('habit-assignment-failed', message: "Habit '{$template->title}' already assigned to {$student->name}");
-            \Filament\Notifications\Notification::make()
-                ->title('Duplicate Habit')
-                ->body("Habit '{$template->title}' is already assigned to {$student->name}.")
-                ->warning()
-                ->send();
-            return;
-        }
-
-        // Attach template to student (Many-to-Many)
-        $student->habits()->attach($template->id, [
-            'color' => $template->color,
-            'frequency' => $template->frequency,
-            'is_active' => true,
-        ]);
-
-        $this->dispatch('habit-assigned', message: "Assigned '{$template->title}' to {$student->name}");
-
-        // Refresh data to update counts if needed
-        $this->loadData();
-
-        // If the assigned student is currently selected, refresh their habits list
-        if ($this->selectedStudentId == $studentId) {
-            $this->selectStudent($studentId);
-        }
-    }
-
-    public function selectStudent($studentId)
-    {
-        $this->selectedStudentId = $studentId;
-        $student = User::find($studentId);
-
+        $student = User::find($this->selectedStudentId);
         if ($student) {
             $this->selectedStudentHabits = $student->habits()
                 ->with('category')
-                ->latest()
+                ->latest('pivot_created_at')
                 ->get()
                 ->map(function ($habit) {
                     return [
                         'id' => $habit->id,
                         'title' => $habit->title,
-                        'color' => $habit->pivot->color ?? $habit->color, // Use pivot override if available
+                        'color' => $habit->pivot->color ?? $habit->color,
                         'frequency' => $habit->pivot->frequency ?? $habit->frequency,
                         'category_name' => $habit->category?->name ?? 'Uncategorized',
+                        'is_assigned' => true,
                     ];
                 })->toArray();
         } else {
@@ -135,40 +100,46 @@ class HabitAssignmentWidget extends Widget
         }
     }
 
-    public function deleteHabit($habitId)
+    public function assignHabit($habitId)
     {
-        $habit = Habit::find($habitId);
-
-        if (!$habit) {
+        if (!$this->selectedStudentId) {
+            Notification::make()->title('Please select a student first')->warning()->send();
             return;
         }
 
         $student = User::find($this->selectedStudentId);
-        if (!$student) {
+        $habit = Habit::find($habitId);
+
+        if (!$student || !$habit) return;
+
+        // Check if already assigned
+        if ($student->habits()->where('habit_id', $habitId)->exists()) {
+            Notification::make()->title('Habit already assigned')->warning()->send();
             return;
         }
 
-        // Security: Ensure the habit is assigned to the selected student
-        if (!$student->habits()->where('habit_id', $habitId)->exists()) {
-            \Filament\Notifications\Notification::make()
-                ->title('Unauthorized Action')
-                ->body("You cannot delete this habit.")
-                ->danger()
-                ->send();
-            return;
+        // Attach
+        $student->habits()->attach($habitId, [
+            'color' => $habit->color,
+            'frequency' => $habit->frequency,
+            'is_active' => true,
+        ]);
+
+        Notification::make()->title('Habit assigned successfully')->success()->send();
+
+        $this->loadStudentHabits();
+    }
+
+    public function removeHabit($habitId)
+    {
+        if (!$this->selectedStudentId) return;
+
+        $student = User::find($this->selectedStudentId);
+
+        if ($student) {
+            $student->habits()->detach($habitId);
+            Notification::make()->title('Habit unassigned')->success()->send();
+            $this->loadStudentHabits();
         }
-
-        // Detach instead of deleting the habit record
-        $student->habits()->detach($habitId);
-
-        \Filament\Notifications\Notification::make()
-            ->title('Habit Removed')
-            ->body("Habit '{$habit->title}' has been removed from this student.")
-            ->success()
-            ->send();
-
-        // Refresh UI
-        $this->loadData(); // Updates student habit counts
-        $this->selectStudent($this->selectedStudentId); // Updates the list
     }
 }

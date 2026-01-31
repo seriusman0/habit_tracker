@@ -20,8 +20,12 @@ return new class extends Migration
 
         // 2. Make student_id in habit_categories nullable to support template categories
         Schema::table('habit_categories', function (Blueprint $table) {
-            // Modify existing column to be nullable
-            $table->foreignId('student_id')->nullable()->change();
+            // Modify existing column to be nullable if it exists, otherwise add it
+            if (Schema::hasColumn('habit_categories', 'student_id')) {
+                $table->foreignId('student_id')->nullable()->change();
+            } else {
+                $table->foreignId('student_id')->nullable()->constrained('users')->cascadeOnDelete();
+            }
         });
     }
 

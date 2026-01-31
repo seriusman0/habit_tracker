@@ -20,13 +20,12 @@ class StatsOverview extends BaseWidget
                 ->color('primary')
                 ->url('/admin/users'), // Assuming generic user resource or just for info. If no resource, link might be dead. Let's use /admin/mentor or /admin/student for specificity if needed, but user asked for "User".
 
-            Stat::make('Mentors', User::where('role', 'mentor')->count())
-                ->description('Active mentors')
-                ->descriptionIcon('heroicon-m-academic-cap')
-                ->color('success')
-                ->url('/admin/mentor'),
+            Stat::make('Mentors', User::role('mentor')->count())
+                ->description('Active Mentors')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->color('success'),
 
-            Stat::make('Students', User::where('role', 'student')->count())
+            Stat::make('Students', User::role('student')->count())
                 ->description('Active students')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('warning')

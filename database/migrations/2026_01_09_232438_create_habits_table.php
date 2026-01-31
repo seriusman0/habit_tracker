@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('habits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('color')->default('#4F46E5');

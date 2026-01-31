@@ -58,7 +58,7 @@ class HabitAssignmentWidget extends Widget
                         return [
                             'id' => $habit->id,
                             'title' => $habit->title,
-                            'color' => $habit->color,
+                            'color' => $habit->color ?: '#4F46E5',
                             'frequency' => $habit->frequency,
                         ];
                     })->toArray()
@@ -89,7 +89,7 @@ class HabitAssignmentWidget extends Widget
                     return [
                         'id' => $habit->id,
                         'title' => $habit->title,
-                        'color' => $habit->pivot->color ?? $habit->color,
+                        'color' => ($habit->pivot->color ?? $habit->color) ?: '#4F46E5',
                         'frequency' => $habit->pivot->frequency ?? $habit->frequency,
                         'category_name' => $habit->category?->name ?? 'Uncategorized',
                         'is_assigned' => true,

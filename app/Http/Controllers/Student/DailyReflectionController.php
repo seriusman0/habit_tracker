@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\DailyReflection;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Auth;
+
 class DailyReflectionController extends Controller
 {
     public function store(Request $request)
@@ -17,12 +19,12 @@ class DailyReflectionController extends Controller
 
         DailyReflection::updateOrCreate(
             [
-                'student_id' => auth()->id(),
+                'student_id' => Auth::id(),
                 'ref_date' => now()->toDateString(),
             ],
             [
                 'mood' => $validated['mood'],
-                'note' => $validated['note'],
+                'note' => $validated['note'] ?? null,
             ]
         );
 

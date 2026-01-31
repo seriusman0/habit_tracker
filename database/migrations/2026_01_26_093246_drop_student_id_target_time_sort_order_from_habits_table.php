@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('habits', function (Blueprint $table) {
-            $table->dropForeign(['student_id']);
-            $table->dropColumn(['student_id', 'target_time', 'sort_order']);
+            $table->dropColumn(['target_time', 'sort_order']);
         });
     }
 

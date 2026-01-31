@@ -36,7 +36,6 @@ CREATE TABLE `cache` (
 
 LOCK TABLES `cache` WRITE;
 /*!40000 ALTER TABLE `cache` DISABLE KEYS */;
-INSERT INTO `cache` VALUES ('laravel-cache-test@gmail.com|127.0.0.1','i:1;',1768009730),('laravel-cache-test@gmail.com|127.0.0.1:timer','i:1768009730;',1768009730);
 /*!40000 ALTER TABLE `cache` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,6 +61,64 @@ CREATE TABLE `cache_locks` (
 LOCK TABLES `cache_locks` WRITE;
 /*!40000 ALTER TABLE `cache_locks` DISABLE KEYS */;
 /*!40000 ALTER TABLE `cache_locks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `classroom_students`
+--
+
+DROP TABLE IF EXISTS `classroom_students`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `classroom_students` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `classroom_id` bigint unsigned NOT NULL,
+  `student_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `classroom_students_classroom_id_student_id_unique` (`classroom_id`,`student_id`),
+  KEY `classroom_students_student_id_foreign` (`student_id`),
+  CONSTRAINT `classroom_students_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `classroom_students_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `classroom_students`
+--
+
+LOCK TABLES `classroom_students` WRITE;
+/*!40000 ALTER TABLE `classroom_students` DISABLE KEYS */;
+/*!40000 ALTER TABLE `classroom_students` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `classrooms`
+--
+
+DROP TABLE IF EXISTS `classrooms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `classrooms` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `teacher_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `classrooms_teacher_id_foreign` (`teacher_id`),
+  CONSTRAINT `classrooms_teacher_id_foreign` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `classrooms`
+--
+
+LOCK TABLES `classrooms` WRITE;
+/*!40000 ALTER TABLE `classrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `classrooms` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -94,38 +151,6 @@ LOCK TABLES `failed_jobs` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `friendships`
---
-
-DROP TABLE IF EXISTS `friendships`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `friendships` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `sender_id` bigint unsigned NOT NULL,
-  `recipient_id` bigint unsigned NOT NULL,
-  `status` enum('pending','accepted','declined') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `friendships_sender_id_foreign` (`sender_id`),
-  KEY `friendships_recipient_id_foreign` (`recipient_id`),
-  CONSTRAINT `friendships_recipient_id_foreign` FOREIGN KEY (`recipient_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `friendships_sender_id_foreign` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `friendships`
---
-
-LOCK TABLES `friendships` WRITE;
-/*!40000 ALTER TABLE `friendships` DISABLE KEYS */;
-INSERT INTO `friendships` VALUES (1,1,2,'accepted','2026-01-09 18:11:43','2026-01-09 18:11:43');
-/*!40000 ALTER TABLE `friendships` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `habit_logs`
 --
 
@@ -142,7 +167,7 @@ CREATE TABLE `habit_logs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `habit_logs_habit_id_date_unique` (`habit_id`,`date`),
   CONSTRAINT `habit_logs_habit_id_foreign` FOREIGN KEY (`habit_id`) REFERENCES `habits` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,39 +176,7 @@ CREATE TABLE `habit_logs` (
 
 LOCK TABLES `habit_logs` WRITE;
 /*!40000 ALTER TABLE `habit_logs` DISABLE KEYS */;
-INSERT INTO `habit_logs` VALUES (11,1,'2026-01-09','completed','2026-01-09 18:34:50','2026-01-09 18:34:50'),(12,1,'2026-01-10','completed','2026-01-09 18:34:51','2026-01-09 18:34:51'),(16,3,'2026-01-04','completed','2026-01-09 18:49:17','2026-01-09 18:49:17'),(17,3,'2026-01-05','completed','2026-01-09 18:49:17','2026-01-09 18:49:17'),(18,3,'2026-01-06','completed','2026-01-09 18:49:18','2026-01-09 18:49:18'),(19,3,'2026-01-07','completed','2026-01-09 18:49:19','2026-01-09 18:49:19'),(20,3,'2026-01-08','completed','2026-01-09 18:49:21','2026-01-09 18:49:21'),(21,3,'2026-01-09','completed','2026-01-09 18:49:21','2026-01-09 18:49:21'),(22,3,'2026-01-10','completed','2026-01-09 18:49:36','2026-01-09 18:49:36');
 /*!40000 ALTER TABLE `habit_logs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `habit_permissions`
---
-
-DROP TABLE IF EXISTS `habit_permissions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `habit_permissions` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `habit_id` bigint unsigned NOT NULL,
-  `viewer_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `habit_permissions_habit_id_foreign` (`habit_id`),
-  KEY `habit_permissions_viewer_id_foreign` (`viewer_id`),
-  CONSTRAINT `habit_permissions_habit_id_foreign` FOREIGN KEY (`habit_id`) REFERENCES `habits` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `habit_permissions_viewer_id_foreign` FOREIGN KEY (`viewer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `habit_permissions`
---
-
-LOCK TABLES `habit_permissions` WRITE;
-/*!40000 ALTER TABLE `habit_permissions` DISABLE KEYS */;
-INSERT INTO `habit_permissions` VALUES (1,2,1,'2026-01-09 18:11:43','2026-01-09 18:11:43'),(2,3,1,'2026-01-09 18:46:58','2026-01-09 18:46:58');
-/*!40000 ALTER TABLE `habit_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -206,7 +199,7 @@ CREATE TABLE `habits` (
   PRIMARY KEY (`id`),
   KEY `habits_user_id_foreign` (`user_id`),
   CONSTRAINT `habits_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -215,7 +208,7 @@ CREATE TABLE `habits` (
 
 LOCK TABLES `habits` WRITE;
 /*!40000 ALTER TABLE `habits` DISABLE KEYS */;
-INSERT INTO `habits` VALUES (1,1,'Morning Jog','Run 5km every morning','#10B981','daily',0,'2026-01-09 18:11:43','2026-01-09 18:11:43'),(2,2,'Read a Book','30 mins reading','#6366F1','daily',0,'2026-01-09 18:11:43','2026-01-09 18:11:43'),(3,2,'Test Title','Test Desc','#8B5CF6','daily',0,'2026-01-09 18:46:58','2026-01-09 18:46:58');
+INSERT INTO `habits` VALUES (1,2,'Morning Jog','Run 5km every morning','#10B981','daily',0,'2026-01-24 23:46:14','2026-01-24 23:46:14');
 /*!40000 ALTER TABLE `habits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -291,7 +284,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,8 +293,61 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2026_01_09_232438_create_habits_table',1),(5,'2026_01_09_232439_create_habit_logs_table',1),(6,'2026_01_09_232440_create_friendships_table',1),(7,'2026_01_09_232441_create_habit_permissions_table',1);
+INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2026_01_09_232438_create_habits_table',1),(5,'2026_01_09_232439_create_habit_logs_table',1),(6,'2026_01_09_232441_create_habit_permissions_table',1),(7,'2026_01_12_185602_create_permission_tables',1),(8,'2026_01_12_185715_drop_social_tables',1),(9,'2026_01_12_185716_create_student_guardians_table',1),(10,'2026_01_12_185718_create_classrooms_tables',1);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `model_has_permissions`
+--
+
+DROP TABLE IF EXISTS `model_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `model_has_permissions` (
+  `permission_id` bigint unsigned NOT NULL,
+  `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `model_has_permissions`
+--
+
+LOCK TABLES `model_has_permissions` WRITE;
+/*!40000 ALTER TABLE `model_has_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `model_has_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `model_has_roles`
+--
+
+DROP TABLE IF EXISTS `model_has_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `model_has_roles` (
+  `role_id` bigint unsigned NOT NULL,
+  `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint unsigned NOT NULL,
+  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `model_has_roles`
+--
+
+LOCK TABLES `model_has_roles` WRITE;
+/*!40000 ALTER TABLE `model_has_roles` DISABLE KEYS */;
+INSERT INTO `model_has_roles` VALUES (1,'App\\Models\\User',1);
+/*!40000 ALTER TABLE `model_has_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -326,6 +372,87 @@ CREATE TABLE `password_reset_tokens` (
 LOCK TABLES `password_reset_tokens` WRITE;
 /*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
 /*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `permissions`
+--
+
+DROP TABLE IF EXISTS `permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `permissions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `permissions`
+--
+
+LOCK TABLES `permissions` WRITE;
+/*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `role_has_permissions`
+--
+
+DROP TABLE IF EXISTS `role_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `role_has_permissions` (
+  `permission_id` bigint unsigned NOT NULL,
+  `role_id` bigint unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`role_id`),
+  KEY `role_has_permissions_role_id_foreign` (`role_id`),
+  CONSTRAINT `role_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `role_has_permissions`
+--
+
+LOCK TABLES `role_has_permissions` WRITE;
+/*!40000 ALTER TABLE `role_has_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `role_has_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `roles` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'admin','web','2026-01-24 23:46:12','2026-01-24 23:46:12'),(2,'teacher','web','2026-01-24 23:46:12','2026-01-24 23:46:12'),(3,'parent','web','2026-01-24 23:46:12','2026-01-24 23:46:12'),(4,'student','web','2026-01-24 23:46:12','2026-01-24 23:46:12');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -354,8 +481,37 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('2QGkOhNhaYsU5fmFjuOHaPzf9NwHcYh7JHeIWj4i',1,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiSmg4bE5jOUt0dG4ySzBtRlg1elhxbjNOeURIUlRKZnkzQXd1WDBPeSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9zb2NpYWwiO3M6NToicm91dGUiO3M6MTI6InNvY2lhbC5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MzoidXJsIjthOjA6e31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=',1768009850),('DNvf3Go6Tg61Q4HFVPq7K17PTZuMxWI2TQGkMuXg',1,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRDZtdTdIUXBCaHJWSVRTdFgwbmhOU21La1lVUHBmZ3BFWU02MzcxQyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MzoidXJsIjthOjA6e31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=',1768009564),('oIm9AUv0hOf2WmDYIg6DJQG3caRikfVXJZcFQUAq',2,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiczM1SXJNUGdiQkg5Nm5Kb3I3ODUwODFVS0FvMDdlUlNrM0Uwek8ybSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==',1768009783),('uHo1Gv1Wnypk58Q2TPQ5Of9q6E2ZyglvuNpK8he0',1,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiQk9ybXh6ejVSZEJVbmpyN21NZVN6UUYwNXJubWk5VTM5ZFpYZ3p4SSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==',1768009529);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `student_guardians`
+--
+
+DROP TABLE IF EXISTS `student_guardians`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `student_guardians` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint unsigned NOT NULL,
+  `guardian_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `student_guardians_student_id_guardian_id_unique` (`student_id`,`guardian_id`),
+  KEY `student_guardians_guardian_id_foreign` (`guardian_id`),
+  CONSTRAINT `student_guardians_guardian_id_foreign` FOREIGN KEY (`guardian_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `student_guardians_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `student_guardians`
+--
+
+LOCK TABLES `student_guardians` WRITE;
+/*!40000 ALTER TABLE `student_guardians` DISABLE KEYS */;
+/*!40000 ALTER TABLE `student_guardians` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -378,7 +534,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_username_unique` (`username`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,7 +543,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Test User','tester','test@example.com','2026-01-09 18:11:42','$2y$12$V1oelW8b5s8scycgdelea.Kz5edAK.f/hylxRjT5RfZ7h3a.cPF2K','KmZGP4MGsW','2026-01-09 18:11:43','2026-01-09 18:11:43'),(2,'Friend User','friend','friend@example.com','2026-01-09 18:11:43','$2y$12$Nb4.axe9LYaC5Ig/4CXaie8CAOHxa35aTKWf8vjHMbGGTIxj3l38a','Uy6Domz4Vq','2026-01-09 18:11:43','2026-01-09 18:11:43');
+INSERT INTO `users` VALUES (1,'Admin','admin','admin@admin.com','2026-01-24 23:46:12','$2y$12$MbcT6i0sJt2odOqlfh9v0OAiXd/JsFXeFLRv59UrjJYQ6fFNRYRpW',NULL,'2026-01-24 23:46:12','2026-01-24 23:46:12'),(2,'Test User','tester','test@example.com','2026-01-24 23:46:13','$2y$12$mBdJ3m9otfpmm82ualja6ebG/pzJcDVEa.14dVyUfVASv5P5Hz3y.','PSZxu7BJnI','2026-01-24 23:46:14','2026-01-24 23:46:14'),(3,'Friend User','friend','friend@example.com','2026-01-24 23:46:14','$2y$12$wHpXPjt1ru1.cGHwnQXswu1RSkcKTmX0KwYdsMiyEFS0GgUu7aecm','FLpFSNDCOQ','2026-01-24 23:46:14','2026-01-24 23:46:14');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -400,4 +556,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-10  9:05:30
+-- Dump completed on 2026-01-31 18:14:57

@@ -36,15 +36,15 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
         if ($user->hasRole('admin')) {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+            return redirect('/admin');
         }
 
         if ($user->hasRole('mentor')) {
-            return redirect()->intended(route('mentor.dashboard', absolute: false));
+            return redirect()->route('filament.mentor.pages.dashboard');
         }
 
         if ($user->hasRole('student')) {
-            return redirect()->intended(route('student.dashboard', absolute: false));
+            return redirect()->route('student.dashboard');
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

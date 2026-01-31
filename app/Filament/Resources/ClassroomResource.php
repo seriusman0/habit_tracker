@@ -30,7 +30,7 @@ class ClassroomResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('mentor_id')
                     ->label('Mentor (Homeroom Teacher)')
-                    ->relationship('mentor', 'name', fn($query) => $query->where('role', 'mentor'))
+                    ->relationship('mentor', 'name', fn($query) => $query->whereHas('roles', fn($q) => $q->where('name', 'mentor')))
                     ->searchable()
                     ->preload()
                     ->required(),

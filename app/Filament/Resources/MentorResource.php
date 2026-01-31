@@ -43,8 +43,7 @@ class MentorResource extends Resource
                     ->dehydrated(fn($state) => filled($state))
                     ->required(fn(string $context): bool => $context === 'create')
                     ->maxLength(255),
-                Forms\Components\Hidden::make('role')
-                    ->default('mentor'),
+
             ]);
     }
 
@@ -78,7 +77,9 @@ class MentorResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('role', 'mentor');
+        return parent::getEloquentQuery()->whereHas('roles', function ($query) {
+            $query->where('name', 'mentor');
+        });
     }
 
     public static function getPages(): array

@@ -1,218 +1,33 @@
-KAMU ADALAH: Senior Laravel Engineer + Filament expert. Target: membangun Admin Panel Filament yang production-ready untuk MVP aplikasi “Kebiasaanku Berbasis Kelas”.
+Tambahkan fitur delete pada setiap item di bagian Assigned Habits. Pastikan setiap habit yang ter-assign kepada Student User dapat dihapus secara individual dengan cara klik tombol delete di samping setiap habit. Setelah tombol delete diklik, pastikan habit yang terpilih dihapus dari daftar dan database secara permanen.
 
-KONTEKS SINGKAT
-- Aplikasi Laravel sudah ada (project existing).
-- Ada 3 role: ADMIN, MENTOR, STUDENT.
-- Fokus saya saat ini: hanya Panel Admin (bukan mentor/student panel).
-- Admin panel harus punya CRUD untuk model-model MVP:
-  1) User
-  2) Class
-  3) ClassMembership (assignment student ke class)
-  4) HabitCategory
-  5) Habit
-  6) HabitLog
-  7) DailyReflection
-  8) MentorFeedback (opsional kuat tapi saya ingin ada)
-- Admin dan Mentor dapat membuat/mengubah kategori & habit untuk student; tetapi di Panel Admin, admin punya akses penuh.
-- Student yang mengisi HabitLog (V/X) dan DailyReflection (mood). Di Panel Admin, boleh read-only atau bisa edit jika diperlukan, tetapi default MVP: read-only agar tidak mengacaukan sumber data.
+Langkah-langkah yang perlu dilakukan:
 
-WAJIB: DETEKSI ENVIRONMENT & PILIH FILAMENT VERSION
-1) Periksa versi Laravel & PHP dari project:
-   - Baca composer.json / artisan --version / php -v.
-2) Jika PHP >= 8.2 dan Laravel >= 11.28 => pakai Filament v5.
-3) Jika PHP >= 8.1 dan Laravel >= 10 => pakai Filament v3.
-4) Jangan memaksa upgrade Laravel/PHP kecuali memang harus untuk memasang Filament versi yang dipilih.
-(Referensi requirement Filament: v5 butuh PHP 8.2+ Laravel 11.28+; v3 butuh PHP 8.1+ Laravel 10+ Livewire 3.) 
+Tambahkan Tombol Delete:
 
-DELIVERABLE YANG HARUS KAMU HASILKAN
-A) Instruksi instalasi Filament yang sesuai versi (commands lengkap).
-B) Konfigurasi panel Admin:
-   - Path: /admin
-   - Auth guard: web (atau yang sudah dipakai project)
-   - Access: hanya user role=ADMIN yang bisa login/akses panel.
-   - Login page Filament berfungsi.
-C) CRUD Filament Resources untuk semua model MVP di atas.
-D) Form + Table yang rapi, dengan relasi yang tepat, filter, dan bulk action yang relevan.
-E) Validasi dan constraints sesuai MVP.
-F) Seed admin user (opsional jika belum ada) agar saya bisa langsung login.
-G) PENTING: Kamu harus memberikan “diff-style output” atau daftar file yang dibuat/diubah secara rinci (path + isi kode).
-H) Tidak boleh membuat fitur di luar Admin Panel. Tidak membuat mentor panel, tidak membuat UI student.
+Untuk setiap item di kolom Assigned Habits, tambahkan tombol delete di samping habit tersebut (gunakan ikon sampah atau tombol bertuliskan "Delete").
 
-ASUMSI DATA MODEL (JIKA MODEL BELUM ADA, BUATKAN; JIKA SUDAH ADA, SESUAIKAN TANPA MERUSAK)
-Gunakan skema minimal berikut (boleh menyesuaikan nama kolom yang sudah ada, tetapi fungsinya harus setara):
+Event Delete:
 
-1) users
-- id, name, email unique, password
-- role enum/string: ADMIN|MENTOR|STUDENT
-- timezone nullable default Asia/Jakarta
-- timestamps
+Tambahkan event handler untuk tombol delete. Saat tombol diklik, habit yang terkait dengan Student User tersebut harus dihapus.
 
-2) classes (class milik mentor)
-- id
-- mentor_id FK users.id (role mentor)
-- name, description nullable
-- status: ACTIVE|ARCHIVED
-- timestamps
+Gunakan Livewire atau Vue.js (tergantung stack yang digunakan) untuk memanage state dan memastikan data terhapus secara dinamis.
 
-3) class_memberships (admin assignment)
-- id
-- class_id FK classes.id
-- student_id FK users.id (role student)
-- status: ACTIVE|INACTIVE
-- assigned_by_admin_id FK users.id
-- assigned_at, ended_at nullable
-- timestamps
-- UNIQUE(class_id, student_id)
+Update Database:
 
-4) habit_categories
-- id
-- student_id FK users.id
-- name, subtitle nullable, icon nullable, color nullable
-- sort_order int default 0
-- is_archived bool default false
-- created_by_user_id FK users.id
-- updated_by_user_id FK users.id
-- timestamps
+Pastikan habit yang dihapus juga dihapus dari database. Gunakan model yang sesuai untuk menghapus data habit tersebut, misalnya Habit::find($habitId)->delete().
 
-5) habits
-- id
-- student_id FK users.id
-- category_id FK habit_categories.id
-- title, description nullable
-- target_time nullable (time)
-- is_active bool default true
-- sort_order int default 0
-- created_by_user_id FK users.id
-- updated_by_user_id FK users.id
-- timestamps
+Tampilkan Pembaruan UI:
 
-6) habit_logs
-- id
-- student_id FK users.id
-- habit_id FK habits.id
-- log_date date
-- status: DONE|MISSED
-- logged_at timestamp nullable
-- timestamps
-- UNIQUE(student_id, habit_id, log_date)
+Setelah dihapus, pastikan tampilan UI langsung diperbarui dan habit yang dihapus tidak lagi tampil di daftar Assigned Habits.
 
-7) daily_reflections
-- id
-- student_id FK users.id
-- ref_date date
-- mood: HAPPY|NEUTRAL|SAD
-- note nullable
-- timestamps
-- UNIQUE(student_id, ref_date)
+Pastikan daftar Assigned Habits tetap teratur dan terupdate tanpa perlu reload halaman.
 
-8) mentor_feedbacks
-- id
-- class_id FK classes.id
-- mentor_id FK users.id
-- student_id FK users.id
-- feedback_date date
-- message text
-- timestamps
+Pastikan Keamanan:
 
-RULE AKSES ADMIN PANEL
-- Hanya role ADMIN boleh login ke /admin.
-- Dalam panel admin, admin bisa CRUD semua entitas.
-- Tetapi untuk HabitLog & DailyReflection: default MVP read-only (view/index), edit disabled, kecuali saya minta explicit.
+Verifikasi bahwa hanya habit yang ter-assign ke siswa tersebut yang dapat dihapus, dan tidak ada habit yang tidak terkait yang dapat dihapus.
 
-DESAIN NAVIGASI FILAMENT (ADMIN)
-Buat Navigation Group:
-1) “Manajemen Pengguna”:
-   - Users
-2) “Kelas & Assignment”:
-   - Classes
-   - Class Memberships (atau dikelola via relation manager dari Classes)
-3) “Program Kebiasaan”:
-   - Habit Categories
-   - Habits
-4) “Aktivitas Harian” (read-only):
-   - Habit Logs
-   - Daily Reflections
-5) “Feedback”:
-   - Mentor Feedbacks
+Verifikasi Fungsi Responsif:
 
-RESOURCE DETAIL WAJIB (FORM & TABLE)
-1) UserResource
-- Table columns: name, email, role (badge), timezone, created_at
-- Filters: role
-- Form fields: name, email, password (only on create), role select, timezone
-- Actions: activate/deactivate (jika ada kolom status), reset password (opsional)
+Pastikan tombol delete dapat diakses dan berfungsi dengan baik pada perangkat kecil maupun besar.
 
-2) ClassResource
-- Table: name, mentor (relation), status, jumlah student aktif (computed), created_at
-- Form: name, mentor_id (select dari users role=MENTOR), description, status
-- Relation managers:
-  a) Students / Memberships: manage class_memberships
-     - Tambahkan bulk assign: pilih multiple student (role STUDENT) => insert memberships ACTIVE.
-     - Membership table: student, status, assigned_by, assigned_at
-     - Bulk action: set INACTIVE / remove membership (soft end)
-  b) Feedbacks: list feedback terkait class
-
-3) ClassMembershipResource (jika dibuat terpisah)
-- Table: class, mentor (via class), student, status, assigned_by, assigned_at
-- Filters: class, mentor, status
-- Form: class_id, student_id (role student), status, assigned_by auto dari admin login
-
-4) HabitCategoryResource
-- Table: name, student, is_archived, updated_by, updated_at
-- Form: student_id (select), name, subtitle, icon, color, sort_order, is_archived
-- Auto-fill created_by/updated_by dari admin yang login.
-- Relation manager: Habits di dalam category (optional), atau HabitsResource terpisah.
-
-5) HabitResource
-- Table: title, category, student, target_time, is_active, updated_by, updated_at
-- Filters: student, category, is_active
-- Form: student_id (select), category_id (dependent select by student), title, description, target_time, is_active, sort_order
-- Auto-fill created_by/updated_by.
-
-6) HabitLogResource (read-only default)
-- Table: log_date, student, habit, category, status (badge), logged_at
-- Filters: date range, student, status
-- Disable create/edit/delete (default).
-- Jika status harus bisa dikoreksi admin, buat “Edit” tapi log perubahan (audit minimal).
-
-7) DailyReflectionResource (read-only default)
-- Table: ref_date, student, mood (badge), note
-- Filters: date range, mood, student
-- Disable create/edit/delete (default).
-
-8) MentorFeedbackResource
-- Table: feedback_date, class, mentor, student, message (truncate), created_at
-- Filters: class, mentor, student, date range
-- Form: class_id (select), mentor_id (select role=MENTOR), student_id (select student anggota class - validasi), feedback_date, message
-- Validasi: student harus anggota class (ACTIVE) (enforce di form validation rule).
-- Catat created_at.
-
-VALIDASI & KONSISTENSI
-- Terapkan constraints unik (membership; habit_logs; reflections).
-- Tambahkan index di FK dan kolom tanggal untuk performa.
-- Pastikan dependent select (Habits: category sesuai student; Feedback: student sesuai class).
-- Pastikan semua halaman memuat label bahasa Indonesia yang rapi.
-
-OUTPUT FORMAT YANG SAYA MAU
-1) Tulis langkah instalasi + konfigurasi (commands).
-2) Sebutkan daftar file yang dibuat/diubah, per file jelaskan tujuannya.
-3) Berikan isi kode untuk:
-   - Panel provider Admin (Filament)
-   - Semua Filament Resources + RelationManagers yang diperlukan
-   - Policies / Gates (minimal untuk membatasi akses panel admin hanya ADMIN)
-   - Seed admin user (jika belum ada)
-   - Perubahan model (implement contract/trait Filament user bila diperlukan)
-4) Pastikan tidak ada placeholder yang menggantung. Kalau ada bagian yang butuh data dari project existing, buat fallback yang aman dan jelaskan apa yang harus saya sesuaikan.
-
-CHECKLIST SEBELUM SELESAI
-- Saya bisa menjalankan:
-  - composer install/update sesuai instruksi
-  - php artisan migrate
-  - php artisan db:seed (opsional)
-  - login ke /admin dengan user ADMIN
-- Semua resource muncul di sidebar sesuai grup.
-- CRUD bekerja untuk User/Class/Membership/HabitCategory/Habit/Feedback.
-- HabitLog dan DailyReflection tampil read-only dan dapat difilter.
-- Bulk assign student ke class berfungsi.
-
-Mulai kerja dengan langkah audit project (versi Laravel/PHP, existing models/migrations). Jika ada model sudah ada, jangan duplikasi: gunakan itu dan buat resource Filament di atasnya.
+Implementasi fitur ini harus memastikan penghapusan habit dilakukan dengan aman dan UI tetap responsif serta tidak ada duplikasi data setelah penghapusan.

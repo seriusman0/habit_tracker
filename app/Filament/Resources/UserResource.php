@@ -35,8 +35,14 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(),
-                Forms\Components\TextInput::make('role'),
-                Forms\Components\TextInput::make('genetic_type'),
+                Forms\Components\Select::make('roles')
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->searchable(),
+                Forms\Components\Select::make('genetic_type_id')
+                    ->relationship('geneticType', 'name')
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 
@@ -61,7 +67,8 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('role')
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('genetic_type')
                     ->searchable(),

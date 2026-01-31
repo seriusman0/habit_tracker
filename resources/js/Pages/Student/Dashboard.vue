@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
 import {
     Plus,
     Sun,
@@ -7,33 +7,93 @@ import {
     ChevronDown,
     Check,
     X,
-    HeartHandshake, // Volunteer/Bermasyarakat -> HeartHandshake/Users
-    Utensils, // Restaurant
-    Moon, // Bedtime
-    BookOpen, // School -> BookOpen/GraduationCap
-    Laugh, // Sentiment Satisfied
-    Meh, // Sentiment Neural
-    Frown, // Sentiment Dissatisfied
-    ListTodo, // Kebiasaan
-    Users, // Teman
-    Home, // Beranda
-    User, // Profil
+    HeartHandshake,
+    Utensils,
+    Moon,
+    BookOpen,
+    Laugh,
+    Meh,
+    Frown,
+    ListTodo,
+    Users,
+    Home,
+    User,
+    Circle,
 } from "lucide-vue-next";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
-// State for toggling accordion
-const openCategories = ref({
-    "bangun-pagi": true,
-    beribadah: false,
-    "olah-raga": false,
-    "makan-sehat": false,
-    "gemar-belajar": false,
-    bermasyarakat: false,
-    "tidur-cepat": false,
+const props = defineProps({
+    categories: Array,
+    todaysReflection: Object,
 });
 
+// State for toggling accordion
+const openCategories = ref({});
+
+// Initialize open state (open first one by default if exists)
+if (props.categories.length > 0) {
+    openCategories.value[props.categories[0].id || "default"] = true;
+}
+
 const toggleCategory = (key) => {
-    openCategories.value[key] = !openCategories.value[key];
+    // Use ID as key, fall back to 'default' for uncategorized
+    const id = key || "default";
+    openCategories.value[id] = !openCategories.value[id];
+};
+
+// Toggle Habit Status
+const toggleHabit = (habit, status) => {
+    router.post(
+        route("student.habits.toggle", habit.id),
+        {
+            status: status,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Optimistic update handled by Inertia reload
+            },
+        },
+    );
+};
+
+// Reflection Logic
+const setMood = (mood) => {
+    router.post(
+        route("student.reflections.store"),
+        { mood: mood },
+        { preserveScroll: true },
+    );
+};
+
+const isMoodActive = (mood) => {
+    return props.todaysReflection?.mood === mood;
+};
+
+// Add Habit Modal Logic (Simple Prompt for MVP)
+const addHabit = () => {
+    const title = prompt("Nama kebiasaan baru:");
+    if (title) {
+        const category = prompt("Kategori (opsional):");
+        router.post(route("student.habits.store"), {
+            title: title,
+            category_name: category,
+            color: "bg-indigo-500", // Default
+            frequency: "daily",
+        });
+    }
+};
+
+// Icon mapping helper (simplified)
+const getIcon = (categoryName) => {
+    const lower = categoryName.toLowerCase();
+    if (lower.includes("bangun") || lower.includes("pagi")) return Sun;
+    if (lower.includes("ibadah") || lower.includes("doa"))
+        return HeartHandshake;
+    if (lower.includes("makan") || lower.includes("sehat")) return Utensils;
+    if (lower.includes("tidur")) return Moon;
+    if (lower.includes("belajar") || lower.includes("sekolah")) return BookOpen;
+    return Circle; // Default
 };
 </script>
 
@@ -64,6 +124,7 @@ const toggleCategory = (key) => {
                         Kategori Kebiasaan
                     </h2>
                     <button
+                        @click="addHabit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-sm flex items-center transition-colors"
                     >
                         <Plus class="w-4 h-4 mr-1" />
@@ -72,37 +133,50 @@ const toggleCategory = (key) => {
                 </div>
 
                 <div class="space-y-3 pb-6">
-                    <!-- Category: Bangun Pagi -->
                     <div
+                        v-if="categories.length === 0"
+                        class="text-center text-gray-500 py-4"
+                    >
+                        Belum ada kebiasaan. Tambahkan sekarang!
+                    </div>
+
+                    <!-- Categories Loop -->
+                    <div
+                        v-for="category in categories"
+                        :key="category.id || 'default'"
                         class="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm flex flex-col group transition-all duration-300"
                     >
                         <div
-                            @click="toggleCategory('bangun-pagi')"
+                            @click="toggleCategory(category.id)"
                             class="flex items-center justify-between cursor-pointer w-full"
                         >
                             <div class="flex items-center gap-4">
                                 <div
-                                    class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center"
+                                    class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"
                                 >
-                                    <Sun class="w-6 h-6" />
+                                    <component
+                                        :is="getIcon(category.name)"
+                                        class="w-6 h-6"
+                                    />
                                 </div>
                                 <div>
                                     <h3
                                         class="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide"
                                     >
-                                        Bangun Pagi
+                                        {{ category.name }}
                                     </h3>
                                     <p
+                                        v-if="category.habits"
                                         class="text-[10px] text-gray-500 dark:text-gray-400"
                                     >
-                                        Siap memulai hari?
+                                        {{ category.habits.length }} kebiasaan
                                     </p>
                                 </div>
                             </div>
                             <div class="text-indigo-600 transition-colors">
                                 <component
                                     :is="
-                                        openCategories['bangun-pagi']
+                                        openCategories[category.id || 'default']
                                             ? ChevronUp
                                             : ChevronDown
                                     "
@@ -112,70 +186,63 @@ const toggleCategory = (key) => {
                         </div>
 
                         <div
-                            v-if="openCategories['bangun-pagi']"
+                            v-if="openCategories[category.id || 'default']"
                             class="mt-4 space-y-2 border-t border-gray-100 dark:border-gray-600 pt-3"
                         >
                             <div
-                                class="flex items-center justify-between p-2 rounded-lg bg-green-50/50 dark:bg-green-900/10"
-                            >
-                                <span
-                                    class="text-sm font-medium text-gray-900 dark:text-gray-100 line-through decoration-green-500/50 decoration-2 opacity-70"
-                                    >Bangun Pagi jam 06:00</span
-                                >
-                                <div class="flex gap-2">
-                                    <button
-                                        aria-label="Berhasil"
-                                        class="w-8 h-8 rounded-full bg-green-400 text-white shadow-sm flex items-center justify-center transition-all hover:scale-105"
-                                    >
-                                        <Check class="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        aria-label="Tidak Dilakukan"
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 text-gray-300 flex items-center justify-center opacity-50 cursor-not-allowed"
-                                    >
-                                        <X class="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-2 rounded-lg bg-red-50/50 dark:bg-red-900/10"
-                            >
-                                <span
-                                    class="text-sm font-medium text-gray-900 dark:text-gray-100 opacity-70"
-                                    >Siap dan Berangkat ke Sekolah</span
-                                >
-                                <div class="flex gap-2">
-                                    <button
-                                        aria-label="Berhasil"
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 text-gray-300 flex items-center justify-center opacity-50 cursor-not-allowed"
-                                    >
-                                        <Check class="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        aria-label="Tidak Dilakukan"
-                                        class="w-8 h-8 rounded-full bg-red-400 text-white shadow-sm flex items-center justify-center transition-all hover:scale-105"
-                                    >
-                                        <X class="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                                v-for="habit in category.habits"
+                                :key="habit.id"
+                                class="flex items-center justify-between p-2 rounded-lg transition-colors"
+                                :class="{
+                                    'bg-green-50/50 dark:bg-green-900/10':
+                                        habit.todays_log?.status ===
+                                        'completed',
+                                    'bg-red-50/50 dark:bg-red-900/10':
+                                        habit.todays_log?.status === 'skipped', // or failed
+                                    'hover:bg-gray-50 dark:hover:bg-gray-600':
+                                        !habit.todays_log,
+                                }"
                             >
                                 <span
                                     class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                                    >Sambut Guru/Tutor dengan Semangat</span
+                                    :class="{
+                                        'line-through decoration-green-500/50 decoration-2 opacity-70':
+                                            habit.todays_log?.status ===
+                                            'completed',
+                                        'opacity-70':
+                                            habit.todays_log?.status ===
+                                            'skipped',
+                                    }"
+                                    >{{ habit.title }}</span
                                 >
                                 <div class="flex gap-2">
                                     <button
-                                        aria-label="Mark as Done"
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-green-200 dark:border-green-800 text-green-400 hover:bg-green-400 hover:text-white dark:hover:bg-green-600 transition-all flex items-center justify-center"
+                                        @click="toggleHabit(habit, 'completed')"
+                                        aria-label="Berhasil"
+                                        class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center hover:scale-105"
+                                        :class="{
+                                            'bg-green-400 text-white border-transparent':
+                                                habit.todays_log?.status ===
+                                                'completed',
+                                            'bg-white dark:bg-gray-700 border-green-200 dark:border-green-800 text-green-400 hover:bg-green-400 hover:text-white':
+                                                habit.todays_log?.status !==
+                                                'completed',
+                                        }"
                                     >
                                         <Check class="w-5 h-5" />
                                     </button>
                                     <button
-                                        aria-label="Mark as Missed"
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-red-200 dark:border-red-800 text-red-400 hover:bg-red-400 hover:text-white dark:hover:bg-red-600 transition-all flex items-center justify-center"
+                                        @click="toggleHabit(habit, 'skipped')"
+                                        aria-label="Tidak Dilakukan"
+                                        class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center hover:scale-105"
+                                        :class="{
+                                            'bg-red-400 text-white border-transparent':
+                                                habit.todays_log?.status ===
+                                                'skipped',
+                                            'bg-white dark:bg-gray-700 border-red-200 dark:border-red-800 text-red-400 hover:bg-red-400 hover:text-white':
+                                                habit.todays_log?.status !==
+                                                'skipped',
+                                        }"
                                     >
                                         <X class="w-5 h-5" />
                                     </button>
@@ -183,75 +250,6 @@ const toggleCategory = (key) => {
                             </div>
                         </div>
                     </div>
-
-                    <!-- Category: Beribadah -->
-                    <div
-                        class="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm flex flex-col group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                    >
-                        <div
-                            @click="toggleCategory('beribadah')"
-                            class="flex items-center justify-between w-full"
-                        >
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center"
-                                >
-                                    <HeartHandshake class="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3
-                                        class="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide"
-                                    >
-                                        Beribadah
-                                    </h3>
-                                    <p
-                                        class="text-[10px] text-gray-500 dark:text-gray-400"
-                                    >
-                                        Waktunya berdoa
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors"
-                            >
-                                <component
-                                    :is="
-                                        openCategories['beribadah']
-                                            ? ChevronUp
-                                            : ChevronDown
-                                    "
-                                    class="w-6 h-6"
-                                />
-                            </div>
-                        </div>
-                        <div
-                            v-if="openCategories['beribadah']"
-                            class="mt-4 space-y-2 border-t border-gray-100 dark:border-gray-600 pt-3"
-                        >
-                            <div
-                                class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                <span
-                                    class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                                    >Shalat Tepat Waktu</span
-                                >
-                                <div class="flex gap-2">
-                                    <button
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-green-200 dark:border-green-800 text-green-400 hover:bg-green-400 hover:text-white transition-all flex items-center justify-center"
-                                    >
-                                        <Check class="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 border-2 border-red-200 dark:border-red-800 text-red-400 hover:bg-red-400 hover:text-white transition-all flex items-center justify-center"
-                                    >
-                                        <X class="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Other Categories can continue similarly... For MVP just implementing a few based on the template -->
                 </div>
 
                 <!-- Refleksi Hari Ini -->
@@ -269,36 +267,86 @@ const toggleCategory = (key) => {
                         Bagaimana perasaanmu hari ini?
                     </p>
                     <div class="flex justify-around gap-4">
-                        <button class="flex flex-col items-center gap-2 group">
+                        <!-- Happy -->
+                        <button
+                            @click="setMood('HAPPY')"
+                            class="flex flex-col items-center gap-2 group"
+                        >
                             <div
-                                class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors"
+                                class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                :class="{
+                                    'bg-green-200 dark:bg-green-900/50 text-green-700 dark:text-green-300':
+                                        isMoodActive('HAPPY'),
+                                    'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:bg-green-200':
+                                        !isMoodActive('HAPPY'),
+                                }"
                             >
                                 <Laugh class="w-7 h-7" />
                             </div>
                             <span
-                                class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400"
+                                class="text-xs font-medium"
+                                :class="{
+                                    'text-green-700 dark:text-green-300 font-bold':
+                                        isMoodActive('HAPPY'),
+                                    'text-gray-500 dark:text-gray-400 group-hover:text-green-600':
+                                        !isMoodActive('HAPPY'),
+                                }"
                                 >Senang</span
                             >
                         </button>
-                        <button class="flex flex-col items-center gap-2 group">
+
+                        <!-- Neutral -->
+                        <button
+                            @click="setMood('NEUTRAL')"
+                            class="flex flex-col items-center gap-2 group"
+                        >
                             <div
-                                class="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-400 group-hover:bg-yellow-200 dark:group-hover:bg-yellow-900/50 transition-colors"
+                                class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                :class="{
+                                    'bg-yellow-200 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300':
+                                        isMoodActive('NEUTRAL'),
+                                    'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 group-hover:bg-yellow-200':
+                                        !isMoodActive('NEUTRAL'),
+                                }"
                             >
                                 <Meh class="w-7 h-7" />
                             </div>
                             <span
-                                class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400"
+                                class="text-xs font-medium"
+                                :class="{
+                                    'text-yellow-700 dark:text-yellow-300 font-bold':
+                                        isMoodActive('NEUTRAL'),
+                                    'text-gray-500 dark:text-gray-400 group-hover:text-yellow-600':
+                                        !isMoodActive('NEUTRAL'),
+                                }"
                                 >Biasa</span
                             >
                         </button>
-                        <button class="flex flex-col items-center gap-2 group">
+
+                        <!-- Sad -->
+                        <button
+                            @click="setMood('SAD')"
+                            class="flex flex-col items-center gap-2 group"
+                        >
                             <div
-                                class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors"
+                                class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                :class="{
+                                    'bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-300':
+                                        isMoodActive('SAD'),
+                                    'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 group-hover:bg-red-200':
+                                        !isMoodActive('SAD'),
+                                }"
                             >
                                 <Frown class="w-7 h-7" />
                             </div>
                             <span
-                                class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400"
+                                class="text-xs font-medium"
+                                :class="{
+                                    'text-red-700 dark:text-red-300 font-bold':
+                                        isMoodActive('SAD'),
+                                    'text-gray-500 dark:text-gray-400 group-hover:text-red-600':
+                                        !isMoodActive('SAD'),
+                                }"
                                 >Sedih</span
                             >
                         </button>
@@ -312,15 +360,21 @@ const toggleCategory = (key) => {
             >
                 <ul class="flex justify-between items-center">
                     <li class="flex-1">
-                        <a
-                            class="flex flex-col items-center justify-center text-indigo-600 group"
-                            href="#"
+                        <Link
+                            :class="{
+                                'text-indigo-600':
+                                    route().current('student.dashboard'),
+                                'text-gray-500 dark:text-gray-400':
+                                    !route().current('student.dashboard'),
+                            }"
+                            class="flex flex-col items-center justify-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
+                            :href="route('student.dashboard')"
                         >
                             <ListTodo class="w-6 h-6 mb-1" />
                             <span class="text-[10px] font-medium"
                                 >Kebiasaan</span
                             >
-                        </a>
+                        </Link>
                     </li>
                     <li class="flex-1">
                         <a

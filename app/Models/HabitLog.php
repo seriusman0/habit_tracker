@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class HabitLog extends Model
 {
     protected $fillable = [
+        'student_id',
         'habit_id',
-        'date',
+        'log_date',
         'status',
+        'logged_at',
     ];
 
     protected $guarded = [];

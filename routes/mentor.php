@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Mentor\ClassroomController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::middleware(['auth', 'role:mentor'])->prefix('mentor')->name('mentor.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Mentor\DashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'verified', 'role:mentor'])->prefix('mentor')->name('mentor.')->group(function () {
+    // API endpoints for Vue widget (using session auth)
+    Route::get('/api/classrooms/{classroom}', [ClassroomController::class, 'show'])->name('api.classrooms.show');
+    Route::post('/api/classrooms/{classroom}/assign', [ClassroomController::class, 'assignHabit'])->name('api.classrooms.assign');
 });

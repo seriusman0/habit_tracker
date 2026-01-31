@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             HabitCategorySeeder::class,
+            MentorSeeder::class,
         ]);
 
         // Student User
@@ -31,11 +32,12 @@ class DatabaseSeeder extends Seeder
 
         // Initial Habit for Student
         \App\Models\Habit::create([
-            'student_id' => $student->id,
+            'created_by_user_id' => $student->id,
             'title' => 'Complete Homework',
             'description' => 'Finish math assignment',
             'color' => '#3B82F6', // Blue
             'frequency' => 'daily',
+            'is_active' => true,
         ]);
     }
 }

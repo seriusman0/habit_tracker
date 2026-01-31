@@ -13,7 +13,7 @@ Route::get('/dashboard', function () {
         return redirect()->to('/admin');
     }
     if ($user->hasRole('mentor')) {
-        return redirect()->route('mentor.dashboard');
+        return redirect()->route('filament.mentor.pages.dashboard');
     }
     if ($user->hasRole('student')) {
         return redirect()->route('student.dashboard');
@@ -32,5 +32,5 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
-require __DIR__ . '/mentor.php';
 require __DIR__ . '/student.php';
+require __DIR__ . '/mentor.php';

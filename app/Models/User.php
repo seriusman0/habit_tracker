@@ -8,17 +8,29 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
 
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return null;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole('admin');
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole('admin');
+        }
+        if ($panel->getId() === 'mentor') {
+            return $this->hasRole('mentor');
+        }
+        return false;
     }
 
     /**
@@ -62,7 +74,15 @@ class User extends Authenticatable implements FilamentUser
      */
     public function habits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Habit::class);
+        return $this->hasMany(Habit::class, 'student_id');
+    }
+
+    /**
+     * Get habits created by this user (e.g. templates or assignments).
+     */
+    public function createdHabits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Habit::class, 'created_by_user_id');
     }
 
     public function guardians(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

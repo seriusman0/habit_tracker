@@ -13,7 +13,7 @@ class ClassroomPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasRole('admin') || $user->hasRole('mentor');
     }
 
     /**
@@ -21,7 +21,7 @@ class ClassroomPolicy
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasRole('admin') || $user->hasRole('mentor');
     }
 
     /**
@@ -37,7 +37,15 @@ class ClassroomPolicy
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        return $user->hasRole('admin');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('mentor') && $classroom->mentor_id === $user->id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

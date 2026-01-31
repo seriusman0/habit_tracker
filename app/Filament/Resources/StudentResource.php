@@ -43,8 +43,7 @@ class StudentResource extends Resource
                     ->dehydrated(fn($state) => filled($state))
                     ->required(fn(string $context): bool => $context === 'create')
                     ->maxLength(255),
-                Forms\Components\Hidden::make('role')
-                    ->default('student'),
+
                 Forms\Components\Select::make('genetic_type_id')
                     ->relationship('geneticType', 'name')
                     ->searchable()
@@ -123,7 +122,9 @@ class StudentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('role', 'student');
+        return parent::getEloquentQuery()->whereHas('roles', function ($query) {
+            $query->where('name', 'student');
+        });
     }
 
     public static function getPages(): array

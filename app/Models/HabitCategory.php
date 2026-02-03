@@ -14,6 +14,6 @@ class HabitCategory extends Model
 
     public function habits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Habit::class, 'category_id')->orderBy('sort_order');
+        return $this->hasMany(Habit::class, 'category_id');
     }
 }

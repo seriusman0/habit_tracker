@@ -35,8 +35,9 @@ class MentorPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Mentor/Widgets'), for: 'App\\Filament\\Mentor\\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
+                Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
+                \App\Filament\Mentor\Widgets\MyClassesListWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

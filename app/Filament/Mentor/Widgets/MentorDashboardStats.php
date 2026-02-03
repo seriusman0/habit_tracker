@@ -25,9 +25,24 @@ class MentorDashboardStats extends Widget
             $query->where('mentor_id', $mentorId);
         })->count();
 
+        // Count active assigned habits for these students
+        // We look for habits attached to students who are in this mentor's classes
+        $assignedHabitsCount = \Illuminate\Support\Facades\DB::table('habit_user')
+            ->whereIn('student_id', function ($query) use ($mentorId) {
+                $query->select('student_id') // Corrected column name
+                    // User::classrooms() -> pivot 'classroom_students', 'student_id', 'classroom_id'
+                    ->from('classroom_students')
+                    ->whereIn('classroom_id', function ($q) use ($mentorId) {
+                        $q->select('id')->from('classrooms')->where('mentor_id', $mentorId);
+                    });
+            })
+            ->where('is_active', true)
+            ->count();
+
         return [
             'classCount' => $classCount,
             'studentCount' => $studentCount,
+            'assignedHabitsCount' => $assignedHabitsCount,
         ];
     }
 }

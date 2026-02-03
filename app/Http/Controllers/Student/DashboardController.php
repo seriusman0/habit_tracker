@@ -10,9 +10,9 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
         $studentId = $user->id;
         $today = now()->toDateString();
 
@@ -59,7 +59,7 @@ class DashboardController extends Controller
                     'id' => null,
                     'name' => 'General Habits',
                     'habits' => $habits->values()->toArray(),
-                    'sort_order' => 999
+
                 ];
             }
 
@@ -67,11 +67,9 @@ class DashboardController extends Controller
             return [
                 'id' => $categoryId,
                 'name' => $category->name,
-                'habits' => $habits->sortBy('sort_order')->values()->toArray(),
-                // Use a default sort order if category doesn't have one, or 0
-                'sort_order' => $category->sort_order ?? 0
+                'habits' => $habits->sortBy('id')->values()->toArray(),
             ];
-        })->sortBy('sort_order')->values();
+        })->sortBy('id')->values();
 
         $todaysReflection = DailyReflection::where('student_id', $studentId)
             ->whereDate('ref_date', $today)

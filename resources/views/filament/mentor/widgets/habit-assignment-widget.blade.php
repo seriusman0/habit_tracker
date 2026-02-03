@@ -2,17 +2,30 @@
     <x-filament::section>
         <div x-data="{
             dragging: null,
+            isDroppable: false,
             handleDragStart(event, habitId) {
                 this.dragging = habitId;
                 event.dataTransfer.effectAllowed = 'copy';
                 event.dataTransfer.setData('text/plain', habitId);
-                event.target.classList.add('opacity-50');
+                // Visual feedback
+                event.target.classList.add('opacity-50'); 
             },
             handleDragEnd(event) {
                 this.dragging = null;
+                this.isDroppable = false;
                 event.target.classList.remove('opacity-50');
             },
+            handleDragOver(event) {
+                this.isDroppable = true;
+                event.dataTransfer.dropEffect = 'copy';
+            },
+            handleDragLeave(event) {
+                // simple check to avoid flickering when hovering children
+                // In robust apps we might check event.relatedTarget
+                this.isDroppable = false;
+            },
             handleDrop(event) {
+                this.isDroppable = false;
                 const habitId = event.dataTransfer.getData('text/plain');
                 if (habitId) {
                     $wire.assignHabit(habitId);
@@ -38,16 +51,19 @@
                     <h3 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Available Templates</h3>
                     <div class="space-y-4">
                         @foreach($categories as $category)
-                        <div>
+                        <div wire:key="category-{{ $category['id'] }}">
                             <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase">{{ $category['name'] }}</h4>
                             <div class="space-y-2">
                                 @foreach($category['habits'] as $habit)
                                 <div
                                     draggable="true"
+                                    wire:key="template-{{ $habit['id'] }}"
+                                    wire:click="assignHabit({{ $habit['id'] }})"
                                     @dragstart="handleDragStart($event, {{ $habit['id'] }})"
                                     @dragend="handleDragEnd($event)"
-                                    class="bg-white dark:bg-gray-800 p-3 rounded shadow cursor-move hover:bg-gray-100 dark:hover:bg-gray-700 border-l-4"
-                                    style="border-color: {{ $habit['color'] }};">
+                                    class="bg-white dark:bg-gray-800 p-3 rounded shadow cursor-move hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-l-4 transition-transform duration-100 hover:scale-[1.02] active:scale-[0.95]"
+                                    title="Click to assign or drag to 'Assigned Habits'"
+                                    @style(['border-color: ' . ($habit[' color'] ?? '#ccc' )])>
                                     <div class="font-medium">{{ $habit['title'] }}</div>
                                     <div class="text-xs text-gray-500">{{ ucfirst($habit['frequency']) }}</div>
                                 </div>
@@ -60,20 +76,27 @@
 
                 <!-- Assigned Column -->
                 <div
-                    @dragover.prevent="$event.dataTransfer.dropEffect = 'copy'"
+                    @dragover.prevent="handleDragOver($event)"
+                    @dragleave="handleDragLeave($event)"
                     @drop.prevent="handleDrop($event)"
-                    class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg min-h-[300px] border-2 border-dashed border-gray-300 dark:border-gray-700">
+                    :class="{ 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/10': isDroppable, 'border-gray-300 dark:border-gray-700': !isDroppable }"
+                    class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg min-h-[300px] border-2 border-dashed transition-colors duration-200">
                     <h3 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Assigned Habits</h3>
 
                     @if(empty($selectedStudentHabits))
-                    <div class="text-center text-gray-400 py-10">
+                    <div class="text-center text-gray-400 py-10" x-show="!isDroppable">
                         Drag templates here to assign
+                    </div>
+                    <div class="text-center text-indigo-500 py-10 font-medium" x-show="isDroppable" style="display: none;">
+                        Drop here to assign!
                     </div>
                     @else
                     <div class="space-y-2">
                         @foreach($selectedStudentHabits as $habit)
-                        <div class="bg-white dark:bg-gray-800 p-3 rounded shadow flex justify-between items-center border-l-4"
-                            style="border-color: {{ $habit['color'] }};">
+                        <div
+                            wire:key="assigned-{{ $habit['id'] }}"
+                            class="bg-white dark:bg-gray-800 p-3 rounded shadow flex justify-between items-center border-l-4"
+                            @style(['border-color: ' . ($habit[' color'] ?? '#ccc' )])>
                             <div>
                                 <div class="font-medium">{{ $habit['title'] }}</div>
                                 <div class="text-xs text-gray-500">{{ ucfirst($habit['frequency']) }}</div>

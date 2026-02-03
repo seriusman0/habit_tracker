@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Habit;
 use App\Models\HabitCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HabitController extends Controller
 {
@@ -19,13 +20,13 @@ class HabitController extends Controller
             // Requirement says: "Minimal: nama/label, kategori jika ada".
         ]);
 
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $categoryId = null;
         if ($request->filled('category_name')) {
             $category = HabitCategory::firstOrCreate(
                 ['student_id' => $studentId, 'name' => $request->category_name],
-                ['sort_order' => 0]
+                []
             );
             $categoryId = $category->id;
         }
@@ -40,25 +41,32 @@ class HabitController extends Controller
         ]);
 
         // Attach to pivot so it appears in the student's list
-        auth()->user()->habits()->attach($habit->id, [
-            'is_active' => true,
-            'frequency' => 'daily', // Default
-            'color' => '#3b82f6', // Default blue
-        ]);
+        if ($user = Auth::user()) {
+            $user->habits()->attach($habit->id, [
+                'is_active' => true,
+                'frequency' => 'daily', // Default
+                'color' => '#3b82f6', // Default blue
+            ]);
+        }
 
         return back();
     }
 
     public function toggle(Request $request, Habit $habit)
     {
-        if ($habit->student_id !== auth()->id() && !auth()->user()->habits()->where('habit_id', $habit->id)->exists()) {
+        $userId = Auth::id();
+
+        // Check if user is the owner OR if user has this habit assigned
+        $hasAssigned = Auth::user() && Auth::user()->habits()->where('habit_id', $habit->id)->exists();
+
+        if ($habit->student_id !== $userId && !$hasAssigned) {
             abort(403);
         }
 
         $today = now()->toDateString();
         // Ensure we only touch the current student's log
         $log = $habit->logs()
-            ->where('student_id', auth()->id())
+            ->where('student_id', $userId)
             ->whereDate('log_date', $today)
             ->first();
 
@@ -80,7 +88,7 @@ class HabitController extends Controller
         } else {
             $status = $request->input('status', 'completed');
             $habit->logs()->create([
-                'student_id' => auth()->id(),
+                'student_id' => $userId,
                 'log_date' => $today,
                 'status' => $status,
                 'logged_at' => now(),

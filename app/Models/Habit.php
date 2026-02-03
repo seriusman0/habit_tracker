@@ -17,8 +17,6 @@ class Habit extends Model
         'frequency',
         'is_active',
         'student_id',
-        'target_time',
-        'sort_order',
         'created_by_user_id',
         'updated_by_user_id',
     ];

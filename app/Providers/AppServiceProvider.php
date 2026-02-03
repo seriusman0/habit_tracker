@@ -23,5 +23,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Explicitly register the policy
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Classroom::class, \App\Policies\ClassroomPolicy::class);
+
+        // Bypass for admin
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            return $user->hasRole('admin') ? true : null;
+        });
     }
 }

@@ -41,7 +41,7 @@ class ClassroomPolicy
             return true;
         }
 
-        if ($user->hasRole('mentor') && $classroom->mentor_id === $user->id) {
+        if ($user->hasRole('mentor') && (int) $classroom->mentor_id === (int) $user->id) {
             return true;
         }
 

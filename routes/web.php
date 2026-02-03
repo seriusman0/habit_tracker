@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Artisan;
 
 Route::redirect('/', '/dashboard');
 
@@ -28,6 +29,16 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('habits', \App\Http\Controllers\HabitController::class);
     Route::post('/habits/{habit}/toggle/{date}', [\App\Http\Controllers\HabitLogController::class, 'toggle'])->name('habits.toggle');
+});
+
+// System Cleanup Route for Production
+Route::get('/sys-clean-up', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('permission:cache-reset');
+
+    return 'System cleaned up! (Cache, Config, Route, Permission)';
 });
 
 require __DIR__ . '/auth.php';

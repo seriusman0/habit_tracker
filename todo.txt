@@ -1,45 +1,27 @@
-Masalah yang Dihadapi:
-Pada bagian Assign Habits, saat ini hanya terdapat fitur Drag and Drop untuk menugaskan kebiasaan ke siswa. Namun, ingin ditambahkan opsi lain, yaitu menambahkan kebiasaan (habit) ke siswa tidak hanya dengan drag and drop, tetapi juga dengan cara mengklik item pada daftar Available Templates. Fitur ini harus dapat diimplementasikan dengan baik dan berfungsi tanpa error.
+"Saya memiliki fitur drag and drop pada route Laravel Filament /mentor/my-classes/1/edit. Fitur ini berfungsi normal di localhost tetapi mati/statis (tidak bisa digerakkan) saat di hosting, kemungkinan karena masalah kompilasi aset atau keterbatasan server.
 
-Penjelasan dan Konteks:
-- Aplikasi ini mengelola kebiasaan siswa dalam konteks kelas.
-- Saat ini, hanya fitur **Drag and Drop** yang berfungsi untuk menugaskan kebiasaan kepada siswa.
-- Keinginan adalah agar pengguna (misalnya, guru atau mentor) dapat menambahkan kebiasaan baik dengan cara menyeretnya ke area Assigned Habits ataupun dengan mengklik item dari Available Templates.
+Tolong bantu saya untuk:
 
-Tujuan:
-Membuat dua metode interaksi yang dapat digunakan untuk menugaskan kebiasaan ke siswa:
-1. **Drag and Drop** (seperti yang ada sekarang).
-2. **Klik Item** untuk langsung menambahkannya ke dalam **Assigned Habits**.
+Identifikasi Teknologi: Berdasarkan struktur file resources/views atau komponen Filament yang saya lampirkan nanti, jelaskan apakah ini menggunakan package eksternal (seperti Sortable.js, Livewire Sortable, atau Plugin Filament tertentu) atau metode kustom.
 
-Langkah-langkah yang Perlu Diperiksa dan Diperbaiki:
+Analisis Masalah: Mengapa fitur ini bisa 'mati' di hosting sementara UI-nya muncul? Jelaskan hubungannya dengan Vite, file public/hot, dan folder public/build.
 
-1. **Pemeriksaan Struktur HTML/CSS**:
-   - Pastikan elemen HTML yang mendukung **Drag and Drop** masih berfungsi dengan baik setelah penambahan fungsionalitas klik.
-   - Tambahkan elemen untuk klik pada setiap template yang tersedia dalam **Available Templates**.
-   - Periksa elemen dan pastikan mereka memiliki **event listeners** yang terhubung dengan benar untuk menangani interaksi pengguna.
+Solusi Pengganti (Klik-Klik): Berikan kode alternatif menggunakan fitur asli Filament Forms/Actions atau Livewire murni yang tidak mengandalkan drag-and-drop. Saya ingin menggantinya dengan metode klik tombol (misalnya tombol 'Tambah' atau 'Pilih') agar lebih kompatibel dengan hosting shared saya.
 
-2. **Pemeriksaan JavaScript (Event Handling)**:
-   - Pastikan fitur **Drag and Drop** tetap berfungsi dengan baik setelah menambahkan opsi klik.
-   - Implementasikan event listener **onclick** pada setiap item di **Available Templates** untuk menambahkan habit ke **Assigned Habits** saat diklik.
-   - Pastikan **event listener dragstart** dan **drop** tetap bekerja untuk memastikan bahwa drag-and-drop tetap tidak terganggu.
-   - Gabungkan kedua metode dalam satu alur, memastikan keduanya dapat bekerja dengan benar tanpa konflik.
+Minimalisir Package: Pastikan solusi tersebut tidak memerlukan import package baru yang sulit di-build di server."
 
-3. **Solusi Teknis**:
-   - **Drag and Drop**: Pertahankan pengaturan event listener untuk dragstart, dragover, dan drop agar drag-and-drop tetap berjalan.
-   - **Klik Item**: Untuk setiap item di **Available Templates**, tambahkan event listener **onclick** untuk menambahkan habit yang dipilih ke **Assigned Habits**.
-   - Saat item template diklik, data terkait template habit harus dipindahkan ke area **Assigned Habits** dan ditampilkan di sana.
+Analisis Awal: Mengapa Tampilan Anda Berbeda?
+Berdasarkan gambar dan error yang Anda alami sebelumnya, berikut adalah alasan teknis mengapa hal itu terjadi:
 
-4. **Pengujian dan Debugging**:
-   - Uji kedua metode di berbagai browser untuk memastikan bahwa keduanya berfungsi dengan baik (misalnya, Chrome, Firefox, Safari).
-   - Gunakan alat pengembang (Developer Tools) untuk memantau log kesalahan dan memperbaiki masalah terkait event listeners atau interaksi elemen yang tidak diinginkan.
-   - Pastikan bahwa baik drag-and-drop maupun klik tidak saling berbenturan dan bahwa data ditambahkan dengan benar.
+Metode yang Anda Gunakan Saat Ini: Biasanya, fitur drag and drop di Filament menggunakan plugin pihak ketiga atau integrasi livewire/sortable. Fitur ini sangat bergantung pada JavaScript yang harus dikompilasi dengan benar.
 
-5. **Keleluasaan untuk Menentukan Solusi**:
-   - Pertimbangkan teknologi dan framework yang sedang digunakan di project ini. Jika menggunakan framework seperti React atau Vue.js, pastikan cara implementasinya sesuai dengan prinsip dan pola yang dianjurkan oleh framework tersebut.
-   - Jika menggunakan **HTML5 Drag and Drop API**, pastikan event handling untuk klik dan drag tidak tumpang tindih dan tetap dapat dijalankan tanpa gangguan.
+Penyebab "Mati" di Hosting: Tampilan di hosting Anda statis karena file JavaScript-nya 404 (Not Found) atau diblokir (ERR_BLOCKED_BY_CLIENT). Tanpa script ini, kotak-kotak tersebut hanyalah elemen HTML biasa yang tidak punya fungsi interaktif.
 
-Langkah-langkah Implementasi:
-1. Tambahkan event listener untuk klik pada setiap item template di Available Templates.
-2. Pastikan event listener dragstart dan drop tetap terhubung dengan baik.
-3. Uji coba dengan memastikan kedua metode, drag-and-drop dan klik, bekerja sesuai fungsinya.
-"""
+Masalah Symlink: Karena Anda kesulitan mengatur public_html, Laravel mungkin gagal memetakan letak file app.js yang mengatur pergerakan elemen tersebut.
+
+Rekomendasi Pengganti (Bawaan Filament)
+Daripada memperbaiki drag-and-drop yang terus bermasalah di hosting, Anda bisa meminta AI untuk menggantinya dengan Filament MultiSelect atau CheckboxList.
+
+Keuntungan: Menggunakan komponen asli Filament yang sudah pasti ter-load selama CSS Filament muncul.
+
+Metode Klik: User cukup mencentang (klik) habit yang ingin dimasukkan ke kelas, lalu klik tombol "Simpan". Tidak perlu menarik elemen secara visual.

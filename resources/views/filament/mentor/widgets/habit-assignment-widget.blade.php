@@ -1,37 +1,6 @@
 <x-filament::widget>
     <x-filament::section>
-        <div x-data="{
-            dragging: null,
-            isDroppable: false,
-            handleDragStart(event, habitId) {
-                this.dragging = habitId;
-                event.dataTransfer.effectAllowed = 'copy';
-                event.dataTransfer.setData('text/plain', habitId);
-                // Visual feedback
-                event.target.classList.add('opacity-50'); 
-            },
-            handleDragEnd(event) {
-                this.dragging = null;
-                this.isDroppable = false;
-                event.target.classList.remove('opacity-50');
-            },
-            handleDragOver(event) {
-                this.isDroppable = true;
-                event.dataTransfer.dropEffect = 'copy';
-            },
-            handleDragLeave(event) {
-                // simple check to avoid flickering when hovering children
-                // In robust apps we might check event.relatedTarget
-                this.isDroppable = false;
-            },
-            handleDrop(event) {
-                this.isDroppable = false;
-                const habitId = event.dataTransfer.getData('text/plain');
-                if (habitId) {
-                    $wire.assignHabit(habitId);
-                }
-            }
-        }">
+        <div>
             <h2 class="text-lg font-bold mb-4">Assign Habits</h2>
 
             <div class="mb-4">
@@ -56,16 +25,25 @@
                             <div class="space-y-2">
                                 @foreach($category['habits'] as $habit)
                                 <div
-                                    draggable="true"
                                     wire:key="template-{{ $habit['id'] }}"
-                                    wire:click="assignHabit({{ $habit['id'] }})"
-                                    @dragstart="handleDragStart($event, {{ $habit['id'] }})"
-                                    @dragend="handleDragEnd($event)"
-                                    class="bg-white dark:bg-gray-800 p-3 rounded shadow cursor-move hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-l-4 transition-transform duration-100 hover:scale-[1.02] active:scale-[0.95]"
-                                    title="Click to assign or drag to 'Assigned Habits'"
+                                    class="bg-white dark:bg-gray-800 p-3 rounded shadow flex justify-between items-center border-l-4 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
                                     @style(['border-color: ' . ($habit[' color'] ?? '#ccc' )])>
-                                    <div class="font-medium">{{ $habit['title'] }}</div>
-                                    <div class="text-xs text-gray-500">{{ ucfirst($habit['frequency']) }}</div>
+                                    <div>
+                                        <div class="font-medium">{{ $habit['title'] }}</div>
+                                        <div class="text-xs text-gray-500">{{ ucfirst($habit['frequency']) }}</div>
+                                    </div>
+                                    <button
+                                        wire:click="assignHabit({{ $habit['id'] }})"
+                                        wire:loading.attr="disabled"
+                                        class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+
+                                        <span wire:loading.remove wire:target="assignHabit({{ $habit['id'] }})">
+                                            Assign
+                                        </span>
+                                        <span wire:loading wire:target="assignHabit({{ $habit['id'] }})">
+                                            ...
+                                        </span>
+                                    </button>
                                 </div>
                                 @endforeach
                             </div>
@@ -75,20 +53,12 @@
                 </div>
 
                 <!-- Assigned Column -->
-                <div
-                    @dragover.prevent="handleDragOver($event)"
-                    @dragleave="handleDragLeave($event)"
-                    @drop.prevent="handleDrop($event)"
-                    :class="{ 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/10': isDroppable, 'border-gray-300 dark:border-gray-700': !isDroppable }"
-                    class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg min-h-[300px] border-2 border-dashed transition-colors duration-200">
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg min-h-[300px]">
                     <h3 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Assigned Habits</h3>
 
                     @if(empty($selectedStudentHabits))
-                    <div class="text-center text-gray-400 py-10" x-show="!isDroppable">
-                        Drag templates here to assign
-                    </div>
-                    <div class="text-center text-indigo-500 py-10 font-medium" x-show="isDroppable" style="display: none;">
-                        Drop here to assign!
+                    <div class="text-center text-gray-400 py-10">
+                        Select a student to view assigned habits.
                     </div>
                     @else
                     <div class="space-y-2">

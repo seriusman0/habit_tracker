@@ -8,16 +8,17 @@ use App\Models\Habit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ClassroomController extends Controller
 {
     public function show(Classroom $classroom)
     {
         // Policy check expected via middleware or explicit check
-        $this->authorize('view', $classroom);
+        Gate::authorize('view', $classroom);
 
         $classroom->load(['students' => function ($q) {
-            $q->select('users.id', 'users.name', 'users.email', 'users.genetic_type_id')
+            $q->select('users.id', 'users.name', 'users.email', 'users->genetic_type_id')
                 ->with('habits'); // Load existing habits for students
         }]);
 
@@ -40,7 +41,7 @@ class ClassroomController extends Controller
 
     public function assignHabit(Request $request, Classroom $classroom)
     {
-        $this->authorize('update', $classroom);
+        Gate::authorize('update', $classroom);
 
         $validated = $request->validate([
             'student_id' => 'required|exists:users,id',

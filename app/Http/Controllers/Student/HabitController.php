@@ -41,6 +41,7 @@ class HabitController extends Controller
         ]);
 
         // Attach to pivot so it appears in the student's list
+        /** @var \App\Models\User $user */
         if ($user = Auth::user()) {
             $user->habits()->attach($habit->id, [
                 'is_active' => true,
@@ -57,7 +58,9 @@ class HabitController extends Controller
         $userId = Auth::id();
 
         // Check if user is the owner OR if user has this habit assigned
-        $hasAssigned = Auth::user() && Auth::user()->habits()->where('habit_id', $habit->id)->exists();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        $hasAssigned = $user && $user->habits()->where('habit_id', $habit->id)->exists();
 
         if ($habit->student_id !== $userId && !$hasAssigned) {
             abort(403);

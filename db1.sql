@@ -36,7 +36,7 @@ CREATE TABLE `cache` (
 
 LOCK TABLES `cache` WRITE;
 /*!40000 ALTER TABLE `cache` DISABLE KEYS */;
-INSERT INTO `cache` VALUES ('jurnal-ykde-cache-spatie.permission.cache','a:3:{s:5:\"alias\";a:0:{}s:11:\"permissions\";a:0:{}s:5:\"roles\";a:0:{}}',1769949892);
+INSERT INTO `cache` VALUES ('jurnal-ykde-cache-spatie.permission.cache','a:3:{s:5:\"alias\";a:0:{}s:11:\"permissions\";a:0:{}s:5:\"roles\";a:0:{}}',1770184869);
 /*!40000 ALTER TABLE `cache` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `classroom_students` (
   KEY `classroom_students_student_id_foreign` (`student_id`),
   CONSTRAINT `classroom_students_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`id`) ON DELETE CASCADE,
   CONSTRAINT `classroom_students_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,6 +127,7 @@ CREATE TABLE `classroom_students` (
 
 LOCK TABLES `classroom_students` WRITE;
 /*!40000 ALTER TABLE `classroom_students` DISABLE KEYS */;
+INSERT INTO `classroom_students` VALUES (1,1,9,'2026-02-02 20:10:58','2026-02-02 20:10:58');
 /*!40000 ALTER TABLE `classroom_students` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,7 +149,7 @@ CREATE TABLE `classrooms` (
   PRIMARY KEY (`id`),
   KEY `classrooms_teacher_id_foreign` (`mentor_id`),
   CONSTRAINT `classrooms_teacher_id_foreign` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -157,6 +158,7 @@ CREATE TABLE `classrooms` (
 
 LOCK TABLES `classrooms` WRITE;
 /*!40000 ALTER TABLE `classrooms` DISABLE KEYS */;
+INSERT INTO `classrooms` VALUES (1,'Kelas Test mentor',2,'2026-02-02 20:10:45','2026-02-02 20:10:45','Ini adalah contoh kelas','ACTIVE');
 /*!40000 ALTER TABLE `classrooms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -335,7 +337,7 @@ CREATE TABLE `habit_user` (
   KEY `habit_user_student_id_foreign` (`student_id`),
   CONSTRAINT `habit_user_habit_id_foreign` FOREIGN KEY (`habit_id`) REFERENCES `habits` (`id`) ON DELETE CASCADE,
   CONSTRAINT `habit_user_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -376,7 +378,7 @@ CREATE TABLE `habits` (
   CONSTRAINT `habits_created_by_user_id_foreign` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `habits_updated_by_user_id_foreign` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `habits_user_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -385,7 +387,7 @@ CREATE TABLE `habits` (
 
 LOCK TABLES `habits` WRITE;
 /*!40000 ALTER TABLE `habits` DISABLE KEYS */;
-INSERT INTO `habits` VALUES (1,9,'Complete Homework','Finish math assignment','#3B82F6','daily',1,'2026-01-31 05:44:33','2026-01-31 05:44:33',NULL,9,NULL);
+INSERT INTO `habits` VALUES (1,9,'Complete Homework','Finish math assignment','#3B82F6','daily',1,'2026-01-31 05:44:33','2026-01-31 05:44:33',NULL,9,NULL),(2,NULL,'Bangun Routine','Default routine for Bangun','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',1,NULL,NULL),(3,NULL,'Ibadah Routine','Default routine for Ibadah','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',2,NULL,NULL),(4,NULL,'Olahraga Routine','Default routine for Olahraga','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',3,NULL,NULL),(5,NULL,'Makan Routine','Default routine for Makan','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',4,NULL,NULL),(6,NULL,'Belajar Routine','Default routine for Belajar','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',5,NULL,NULL),(7,NULL,'Bermasyarakat Routine','Default routine for Bermasyarakat','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',6,NULL,NULL),(8,NULL,'Tidur Routine','Default routine for Tidur','#10B981','daily',1,'2026-02-02 21:22:28','2026-02-02 21:22:28',7,NULL,NULL);
 /*!40000 ALTER TABLE `habits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -693,7 +695,7 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('JlKkt8kmHOjVjUPFw8yxxv02zLVgDI7S0PiLIuRY',1,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRnU5RGtUa3B2WjdLNTdxWlZMNzRpdWJyT09DNVdzSnVKZWIzaHY4ayI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9hZG1pbiI7czo1OiJyb3V0ZSI7czozMDoiZmlsYW1lbnQuYWRtaW4ucGFnZXMuZGFzaGJvYXJkIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2NDoiYTdhZWY0YzI1NWNhNzU1OTY5OWY2NTg2MDQ1YTZiODBjZWNmZGVmMWIwMmRjODBiZTk4YzdiNGYzZGQyZDBhOCI7fQ==',1769864182);
+INSERT INTO `sessions` VALUES ('OoLg94UGEUeAGWAneqYZef4Qi13qBnz2bW365Evv',2,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36','YTo2OntzOjY6Il90b2tlbiI7czo0MDoiSlh2SHR4N2YzUXducHlVMDc3ZnJwWmVJN2VvZWRaYWI5SWN1Nkw4RCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDY6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9tZW50b3IvbXktY2xhc3Nlcy8xL2VkaXQiO3M6NToicm91dGUiO3M6NDE6ImZpbGFtZW50Lm1lbnRvci5yZXNvdXJjZXMubXktY2xhc3Nlcy5lZGl0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovL2xvY2FsaG9zdDo4MDAwL2Rhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjQ6IjQyZGYyYmYyYTJmYTkyODZlMDJkM2NmMDljZjdiZjFkMGIwNzNlMTg5YzExZDYxNjMzYzhlOWY0NDNhZTU4MTIiO30=',1770102082),('oQRzNn5DQ8uqf8i0a0J2Zt2DykYkdS2jDxUVwlCy',2,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36','YTo3OntzOjY6Il90b2tlbiI7czo0MDoicFpUZ0MzSWl4b3ppaERzT1lrUnhMaU45ZER1V1Fralp4WlhtYWdsUSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDY6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9tZW50b3IvbXktY2xhc3Nlcy8xL2VkaXQiO3M6NToicm91dGUiO3M6NDE6ImZpbGFtZW50Lm1lbnRvci5yZXNvdXJjZXMubXktY2xhc3Nlcy5lZGl0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovL2xvY2FsaG9zdDo4MDAwL2Rhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjQ6IjQyZGYyYmYyYTJmYTkyODZlMDJkM2NmMDljZjdiZjFkMGIwNzNlMTg5YzExZDYxNjMzYzhlOWY0NDNhZTU4MTIiO3M6ODoiZmlsYW1lbnQiO2E6MDp7fX0=',1770107500),('QlDE1ybtE9oNtQXduTNj0cMTMrVoOJ5Sm56rxika',2,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36','YTo2OntzOjY6Il90b2tlbiI7czo0MDoiZVIxTFJUTGdldXNsQVJpa3RySlJtYTJmeEtrTFhaOFFVeThGc2xZVCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDY6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9tZW50b3IvbXktY2xhc3Nlcy8xL2VkaXQiO3M6NToicm91dGUiO3M6NDE6ImZpbGFtZW50Lm1lbnRvci5yZXNvdXJjZXMubXktY2xhc3Nlcy5lZGl0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2NDoiNDJkZjJiZjJhMmZhOTI4NmUwMmQzY2YwOWNmN2JmMWQwYjA3M2UxODljMTFkNjE2MzNjOGU5ZjQ0M2FlNTgxMiI7czo4OiJmaWxhbWVudCI7YTowOnt9fQ==',1770108118),('WRACXjFp6R9yu9fJigSU46ghBGNpsnyNsm9hpwwk',2,'127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36','YTo3OntzOjY6Il90b2tlbiI7czo0MDoidGp6alozY09lODYwTTVJdmM3MDQzdzFEU08zM1hJTG9rYUJ4ZXNGTyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDY6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9tZW50b3IvbXktY2xhc3Nlcy8xL2VkaXQiO3M6NToicm91dGUiO3M6NDE6ImZpbGFtZW50Lm1lbnRvci5yZXNvdXJjZXMubXktY2xhc3Nlcy5lZGl0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovL2xvY2FsaG9zdDo4MDAwL2Rhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjQ6IjQyZGYyYmYyYTJmYTkyODZlMDJkM2NmMDljZjdiZjFkMGIwNzNlMTg5YzExZDYxNjMzYzhlOWY0NDNhZTU4MTIiO3M6ODoiZmlsYW1lbnQiO2E6MDp7fX0=',1770106383);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -793,7 +795,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Admin','admin','admin@admin.com','2026-01-31 05:44:31','$2y$12$h8WnABXv.Dnj6WR9mI8mwO8H70YSxLKV5u7iuamPDfUfETcUmsKWy',NULL,'2026-01-31 05:44:31','2026-01-31 05:44:31',NULL),(2,'Mentor User','mentor','mentor@gmail.com','2026-01-31 05:44:31','$2y$12$mmkQVjlD9mUq4JbxzscL1OqjdcS3EyIuh4VPV6i5xWIlM6FfRCQGK','BKLX70lEfR','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(3,'Mentor 5','mentor5','mentor5@gmail.com','2026-01-31 05:44:32','$2y$12$2Lb9cSpXdOtk5INHMIaJtu9Mjxs341nwzlqGxSFHlHEZUk/9msvsO','aECkSCmhUV','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(4,'Andreanne Balistreri','ndietrich','otilia96@example.net','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','QQz0agrsmN','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(5,'Kay Mraz PhD','manuel83','yhagenes@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','pAjv7o8EZi','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(6,'Prof. Geovanny Gusikowski III','koelpin.cullen','jkoss@example.org','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','4GOcsXALir','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(7,'Kaylah Hickle','jared.little','roxanne.schinner@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','XZmAGTov54','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(8,'Tomasa Orn','abbott.evelyn','gaetano05@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','HuxCeQcKwA','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(9,'Student User','student','student@gmail.com','2026-01-31 05:44:33','$2y$12$HO8PMNM4pv7nIZHQoxqdvutcZrPLIIMpHcrdaqQatfVLEYkSBlSnK','foaK4sGUku','2026-01-31 05:44:33','2026-01-31 05:44:33',NULL);
+INSERT INTO `users` VALUES (1,'Admin','admin','admin@admin.com','2026-01-31 05:44:31','$2y$12$h8WnABXv.Dnj6WR9mI8mwO8H70YSxLKV5u7iuamPDfUfETcUmsKWy',NULL,'2026-01-31 05:44:31','2026-01-31 05:44:31',NULL),(2,'Mentor User','mentor','mentor@gmail.com','2026-01-31 05:44:31','$2y$12$mmkQVjlD9mUq4JbxzscL1OqjdcS3EyIuh4VPV6i5xWIlM6FfRCQGK','hIIhQ9WaGdJGu3ynnOGt8j2OfEYwJXYacaiSh2qdfYdbyQEBZfomNG93bIVX','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(3,'Mentor 5','mentor5','mentor5@gmail.com','2026-01-31 05:44:32','$2y$12$2Lb9cSpXdOtk5INHMIaJtu9Mjxs341nwzlqGxSFHlHEZUk/9msvsO','aECkSCmhUV','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(4,'Andreanne Balistreri','ndietrich','otilia96@example.net','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','QQz0agrsmN','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(5,'Kay Mraz PhD','manuel83','yhagenes@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','pAjv7o8EZi','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(6,'Prof. Geovanny Gusikowski III','koelpin.cullen','jkoss@example.org','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','4GOcsXALir','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(7,'Kaylah Hickle','jared.little','roxanne.schinner@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','XZmAGTov54','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(8,'Tomasa Orn','abbott.evelyn','gaetano05@example.com','2026-01-31 05:44:32','$2y$12$BV6WAjQqgiE0msCu4R6DIeYZ8tqsCOdHLdG7chxc2.8pNvTYE0j02','HuxCeQcKwA','2026-01-31 05:44:32','2026-01-31 05:44:32',NULL),(9,'Student User','student','student@gmail.com','2026-01-31 05:44:33','$2y$12$HO8PMNM4pv7nIZHQoxqdvutcZrPLIIMpHcrdaqQatfVLEYkSBlSnK','foaK4sGUku','2026-01-31 05:44:33','2026-01-31 05:44:33',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -806,4 +808,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-31 20:01:19
+-- Dump completed on 2026-02-03 15:44:54

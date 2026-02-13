@@ -8,6 +8,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
+use Filament\Navigation\NavigationItem;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
@@ -56,6 +57,12 @@ class MentorPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn(): string => \Illuminate\Support\Facades\Vite::useHotFile(public_path('hot'))->withEntryPoints(['resources/js/filament-mentor-widget.js'])->toHtml()
-            );
+            )
+            ->navigationItems([
+                NavigationItem::make('Kebiasaanku')
+                    ->url(fn() => route('mentor.my-habits.index'))
+                    ->icon('heroicon-o-check-circle')
+                    ->sort(10),
+            ]);
     }
 }

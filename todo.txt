@@ -1,27 +1,43 @@
-"Saya memiliki fitur drag and drop pada route Laravel Filament /mentor/my-classes/1/edit. Fitur ini berfungsi normal di localhost tetapi mati/statis (tidak bisa digerakkan) saat di hosting, kemungkinan karena masalah kompilasi aset atau keterbatasan server.
+ROLE-BASED FEATURE REPLICATION (STUDENT TO MENTOR)
 
-Tolong bantu saya untuk:
+ROLE:
+Anda adalah Senior Full-stack Developer yang sangat teliti dalam manajemen Role & Permission (Spatie) dan arsitektur Laravel/React.
 
-Identifikasi Teknologi: Berdasarkan struktur file resources/views atau komponen Filament yang saya lampirkan nanti, jelaskan apakah ini menggunakan package eksternal (seperti Sortable.js, Livewire Sortable, atau Plugin Filament tertentu) atau metode kustom.
+CONTEXT:
 
-Analisis Masalah: Mengapa fitur ini bisa 'mati' di hosting sementara UI-nya muncul? Jelaskan hubungannya dengan Vite, file public/hot, dan folder public/build.
+Existing Feature: Saya sudah memiliki fitur "Kebiasaanku" di /student (Role: Student). Fitur ini memiliki UI khusus (seperti screenshot yang saya berikan) dan logika backend untuk mencatat habit.
 
-Solusi Pengganti (Klik-Klik): Berikan kode alternatif menggunakan fitur asli Filament Forms/Actions atau Livewire murni yang tidak mengandalkan drag-and-drop. Saya ingin menggantinya dengan metode klik tombol (misalnya tombol 'Tambah' atau 'Pilih') agar lebih kompatibel dengan hosting shared saya.
+Goal: Saya ingin role "Mentor" memiliki fitur yang identik di /mentor/my-habits. Mentor harus bisa setup habit mereka sendiri dan memiliki UI yang sama persis dengan yang dimiliki Student.
 
-Minimalisir Package: Pastikan solusi tersebut tidak memerlukan import package baru yang sulit di-build di server."
+Tech Stack: Laravel, React (Inertia.js), dan Spatie Permission.
 
-Analisis Awal: Mengapa Tampilan Anda Berbeda?
-Berdasarkan gambar dan error yang Anda alami sebelumnya, berikut adalah alasan teknis mengapa hal itu terjadi:
+STEP 1: ARCHITECTURAL AUDIT (MANDATORY)
+Sebelum menulis kode, pelajari bagaimana fitur ini bekerja agar tidak terjadi duplikasi kode yang sia-sia (DRY Principle). Mohon minta saya mengirimkan:
 
-Metode yang Anda Gunakan Saat Ini: Biasanya, fitur drag and drop di Filament menggunakan plugin pihak ketiga atau integrasi livewire/sortable. Fitur ini sangat bergantung pada JavaScript yang harus dikompilasi dengan benar.
+routes/web.php (Bagian middleware student dan mentor).
 
-Penyebab "Mati" di Hosting: Tampilan di hosting Anda statis karena file JavaScript-nya 404 (Not Found) atau diblokir (ERR_BLOCKED_BY_CLIENT). Tanpa script ini, kotak-kotak tersebut hanyalah elemen HTML biasa yang tidak punya fungsi interaktif.
+Controller yang menangani fitur "Kebiasaanku" di sisi Student.
 
-Masalah Symlink: Karena Anda kesulitan mengatur public_html, Laravel mungkin gagal memetakan letak file app.js yang mengatur pergerakan elemen tersebut.
+Komponen React utama untuk halaman /student tersebut.
 
-Rekomendasi Pengganti (Bawaan Filament)
-Daripada memperbaiki drag-and-drop yang terus bermasalah di hosting, Anda bisa meminta AI untuk menggantinya dengan Filament MultiSelect atau CheckboxList.
+File User.php (Model) untuk melihat relasi habit.
 
-Keuntungan: Menggunakan komponen asli Filament yang sudah pasti ter-load selama CSS Filament muncul.
+STEP 2: ANALYSIS & STRATEGY
+Setelah membaca file tersebut, berikan analisis Anda:
 
-Metode Klik: User cukup mencentang (klik) habit yang ingin dimasukkan ke kelas, lalu klik tombol "Simpan". Tidak perlu menarik elemen secara visual.
+Reusability: Apakah kita bisa menggunakan Controller yang sama dengan logic berbeda, atau harus membuat MentorHabitController baru?
+
+UI Consistency: Bagaimana cara memanggil komponen UI "Kebiasaanku" di dalam Layout Mentor tanpa merusak CSS/styling dashboard mentor?
+
+Spatie Logic: Pastikan permission diatur agar Mentor hanya bisa melihat habit miliknya sendiri, bukan milik student.
+
+STEP 3: EXECUTION PLAN
+Berikan panduan langkah demi langkah untuk:
+
+Penambahan Route di grup middleware 'mentor'.
+
+Penyesuaian Backend (Controller & Model).
+
+Implementasi Frontend di halaman baru /mentor/my-habits.
+
+TUNGGU INSTRUKSI: Jangan berikan kode sekarang. Katakan: "Saya siap membantu menduplikasi fitur 'Kebiasaanku' untuk Mentor. Agar tidak terjadi error role-conflict, tolong lampirkan isi file web.php dan Controller fitur habit yang sudah ada."

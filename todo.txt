@@ -1,43 +1,48 @@
-ROLE-BASED FEATURE REPLICATION (STUDENT TO MENTOR)
+# ROLE & ANALYTICAL CONTEXT
+You are a Senior Software Engineer specializing in Laravel. Your primary objective is to populate the 'students' data into the current project's database without disrupting any existing architecture or business logic.
 
-ROLE:
-Anda adalah Senior Full-stack Developer yang sangat teliti dalam manajemen Role & Permission (Spatie) dan arsitektur Laravel/React.
+# PHASE 1: SYSTEM ANALYSIS (MANDATORY)
+Before writing any code, you MUST:
+1. Examine the 'Student' model and its corresponding table migration.
+2. Identify the specific column names for Name, Birthdate, Class, Religion, and WhatsApp Number.
+3. Check if the 'students' table is linked to a 'users' table or if it stands alone.
+4. Detect existing Seeder patterns (e.g., Use of Traits, BaseSeeders, or custom Factory configurations).
 
-CONTEXT:
+# PHASE 2: DATA IMPLEMENTATION
+Create a 'StudentSeeder' using the following dataset:
+[
+    {"name": "Ad. Zahira", "dob": "2013-05-25", "class": "5 SD", "religion": "Islam", "wa": "895342770603"},
+    {"name": "Michayla Queen Azzhra", "dob": null, "class": "5 SD", "religion": "Islam", "wa": "822132881113"},
+    {"name": "Neshellya Ery Friestya", "dob": "2014-01-23", "class": "5 SD", "religion": "Islam", "wa": "85179873642"},
+    {"name": "Desty keyza angraini", "dob": "2012-12-23", "class": "6 SD", "religion": "Islam", "wa": null},
+    {"name": "Dewi Kayla Putri Ardiansyah", "dob": null, "class": "5 SD", "religion": "Islam", "wa": "85171173015"},
+    {"name": "Rafa Eri Mahendra", "dob": "2017-04-24", "class": "1 SD", "religion": "Islam", "wa": null},
+    {"name": "Arsinta Widya Ningtyas", "dob": "2014-05-14", "class": "5 SD", "religion": "Islam", "wa": "81585242340"},
+    {"name": "Shelvy Arifiani", "dob": "2013-10-27", "class": "5 SD", "religion": "Islam", "wa": null},
+    {"name": "Muhamad alif ilham", "dob": "2019-01-21", "class": "TKB", "religion": "Islam", "wa": null},
+    {"name": "Kayla", "dob": null, "class": "TKB", "religion": "Islam", "wa": null},
+    {"name": "Michelle", "dob": null, "class": "6 SD", "religion": "Kristen", "wa": null},
+    {"name": "Marcel", "dob": "2012-08-23", "class": "6 SD", "religion": "Kristen", "wa": null},
+    {"name": "Helen", "dob": "2016-04-20", "class": "3 SD", "religion": "Kristen", "wa": null},
+    {"name": "Meira", "dob": "2018-10-29", "class": "1 SD", "religion": "Kristen", "wa": null},
+    {"name": "Benson", "dob": "2014-04-18", "class": "5 SD", "religion": "Kristen", "wa": null},
+    {"name": "Easter", "dob": "2012-04-06", "class": "6 SD", "religion": "Kristen", "wa": null},
+    {"name": "Nurlia", "dob": "2014-06-08", "class": "4 SD", "religion": "Kristen", "wa": null},
+    {"name": "Dendi", "dob": null, "class": "2 SMP", "religion": "Kristen", "wa": null},
+    {"name": "Daniel", "dob": null, "class": "3 SD", "religion": "Kristen", "wa": null},
+    {"name": "Ezekiel", "dob": null, "class": "2 SMA", "religion": "Kristen", "wa": null},
+    {"name": "Moscha Apricilliya Suhatmoko", "dob": null, "class": "1 SMP", "religion": "Kristen", "wa": "81233579446"},
+    {"name": "Sofhia Celiya Suhatmoko", "dob": null, "class": "4 SD", "religion": null, "wa": "81233579446"},
+    {"name": "Daniel Aliando Suhatmoko", "dob": null, "class": "3 SD", "religion": null, "wa": "81233579446"},
+    {"name": "Tio", "dob": null, "class": "3 SMA", "religion": "Kristen", "wa": null}
+]
 
-Existing Feature: Saya sudah memiliki fitur "Kebiasaanku" di /student (Role: Student). Fitur ini memiliki UI khusus (seperti screenshot yang saya berikan) dan logika backend untuk mencatat habit.
+# PHASE 3: EXECUTION CONSTRAINTS
+- NON-DESTRUCTIVE: Do NOT modify existing features or delete non-dummy data.
+- CLEAN-UP: Remove or Truncate only the old dummy/factory students before inserting this official list.
+- IDEMPOTENCY: Use 'updateOrCreate' logic to prevent duplicate entries if the seeder is run multiple times.
+- ATOMICITY: Wrap the seeding process in a DB::transaction.
 
-Goal: Saya ingin role "Mentor" memiliki fitur yang identik di /mentor/my-habits. Mentor harus bisa setup habit mereka sendiri dan memiliki UI yang sama persis dengan yang dimiliki Student.
-
-Tech Stack: Laravel, React (Inertia.js), dan Spatie Permission.
-
-STEP 1: ARCHITECTURAL AUDIT (MANDATORY)
-Sebelum menulis kode, pelajari bagaimana fitur ini bekerja agar tidak terjadi duplikasi kode yang sia-sia (DRY Principle). Mohon minta saya mengirimkan:
-
-routes/web.php (Bagian middleware student dan mentor).
-
-Controller yang menangani fitur "Kebiasaanku" di sisi Student.
-
-Komponen React utama untuk halaman /student tersebut.
-
-File User.php (Model) untuk melihat relasi habit.
-
-STEP 2: ANALYSIS & STRATEGY
-Setelah membaca file tersebut, berikan analisis Anda:
-
-Reusability: Apakah kita bisa menggunakan Controller yang sama dengan logic berbeda, atau harus membuat MentorHabitController baru?
-
-UI Consistency: Bagaimana cara memanggil komponen UI "Kebiasaanku" di dalam Layout Mentor tanpa merusak CSS/styling dashboard mentor?
-
-Spatie Logic: Pastikan permission diatur agar Mentor hanya bisa melihat habit miliknya sendiri, bukan milik student.
-
-STEP 3: EXECUTION PLAN
-Berikan panduan langkah demi langkah untuk:
-
-Penambahan Route di grup middleware 'mentor'.
-
-Penyesuaian Backend (Controller & Model).
-
-Implementasi Frontend di halaman baru /mentor/my-habits.
-
-TUNGGU INSTRUKSI: Jangan berikan kode sekarang. Katakan: "Saya siap membantu menduplikasi fitur 'Kebiasaanku' untuk Mentor. Agar tidak terjadi error role-conflict, tolong lampirkan isi file web.php dan Controller fitur habit yang sudah ada."
+# PHASE 4: VALIDATION
+After generating the code, provide the command: 'php artisan db:seed --class=StudentSeeder'. 
+You must confirm that the seeder will run without 'SQL State' errors regarding foreign keys or null constraints by analyzing the table's schema first.

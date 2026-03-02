@@ -1,48 +1,171 @@
-# ROLE & ANALYTICAL CONTEXT
-You are a Senior Software Engineer specializing in Laravel. Your primary objective is to populate the 'students' data into the current project's database without disrupting any existing architecture or business logic.
+🎯 Konteks
 
-# PHASE 1: SYSTEM ANALYSIS (MANDATORY)
-Before writing any code, you MUST:
-1. Examine the 'Student' model and its corresponding table migration.
-2. Identify the specific column names for Name, Birthdate, Class, Religion, and WhatsApp Number.
-3. Check if the 'students' table is linked to a 'users' table or if it stands alone.
-4. Detect existing Seeder patterns (e.g., Use of Traits, BaseSeeders, or custom Factory configurations).
+Route /student/friends sudah dibuat sebelumnya.
 
-# PHASE 2: DATA IMPLEMENTATION
-Create a 'StudentSeeder' using the following dataset:
-[
-    {"name": "Ad. Zahira", "dob": "2013-05-25", "class": "5 SD", "religion": "Islam", "wa": "895342770603"},
-    {"name": "Michayla Queen Azzhra", "dob": null, "class": "5 SD", "religion": "Islam", "wa": "822132881113"},
-    {"name": "Neshellya Ery Friestya", "dob": "2014-01-23", "class": "5 SD", "religion": "Islam", "wa": "85179873642"},
-    {"name": "Desty keyza angraini", "dob": "2012-12-23", "class": "6 SD", "religion": "Islam", "wa": null},
-    {"name": "Dewi Kayla Putri Ardiansyah", "dob": null, "class": "5 SD", "religion": "Islam", "wa": "85171173015"},
-    {"name": "Rafa Eri Mahendra", "dob": "2017-04-24", "class": "1 SD", "religion": "Islam", "wa": null},
-    {"name": "Arsinta Widya Ningtyas", "dob": "2014-05-14", "class": "5 SD", "religion": "Islam", "wa": "81585242340"},
-    {"name": "Shelvy Arifiani", "dob": "2013-10-27", "class": "5 SD", "religion": "Islam", "wa": null},
-    {"name": "Muhamad alif ilham", "dob": "2019-01-21", "class": "TKB", "religion": "Islam", "wa": null},
-    {"name": "Kayla", "dob": null, "class": "TKB", "religion": "Islam", "wa": null},
-    {"name": "Michelle", "dob": null, "class": "6 SD", "religion": "Kristen", "wa": null},
-    {"name": "Marcel", "dob": "2012-08-23", "class": "6 SD", "religion": "Kristen", "wa": null},
-    {"name": "Helen", "dob": "2016-04-20", "class": "3 SD", "religion": "Kristen", "wa": null},
-    {"name": "Meira", "dob": "2018-10-29", "class": "1 SD", "religion": "Kristen", "wa": null},
-    {"name": "Benson", "dob": "2014-04-18", "class": "5 SD", "religion": "Kristen", "wa": null},
-    {"name": "Easter", "dob": "2012-04-06", "class": "6 SD", "religion": "Kristen", "wa": null},
-    {"name": "Nurlia", "dob": "2014-06-08", "class": "4 SD", "religion": "Kristen", "wa": null},
-    {"name": "Dendi", "dob": null, "class": "2 SMP", "religion": "Kristen", "wa": null},
-    {"name": "Daniel", "dob": null, "class": "3 SD", "religion": "Kristen", "wa": null},
-    {"name": "Ezekiel", "dob": null, "class": "2 SMA", "religion": "Kristen", "wa": null},
-    {"name": "Moscha Apricilliya Suhatmoko", "dob": null, "class": "1 SMP", "religion": "Kristen", "wa": "81233579446"},
-    {"name": "Sofhia Celiya Suhatmoko", "dob": null, "class": "4 SD", "religion": null, "wa": "81233579446"},
-    {"name": "Daniel Aliando Suhatmoko", "dob": null, "class": "3 SD", "religion": null, "wa": "81233579446"},
-    {"name": "Tio", "dob": null, "class": "3 SMA", "religion": "Kristen", "wa": null}
-]
+Saat ini halaman tersebut masih kosong / belum memiliki logic dan tampilan.
 
-# PHASE 3: EXECUTION CONSTRAINTS
-- NON-DESTRUCTIVE: Do NOT modify existing features or delete non-dummy data.
-- CLEAN-UP: Remove or Truncate only the old dummy/factory students before inserting this official list.
-- IDEMPOTENCY: Use 'updateOrCreate' logic to prevent duplicate entries if the seeder is run multiple times.
-- ATOMICITY: Wrap the seeding process in a DB::transaction.
+Tugas: Mengisi halaman tersebut dengan fitur ringkasan pencapaian teman sekelas.
 
-# PHASE 4: VALIDATION
-After generating the code, provide the command: 'php artisan db:seed --class=StudentSeeder'. 
-You must confirm that the seeder will run without 'SQL State' errors regarding foreign keys or null constraints by analyzing the table's schema first.
+🧠 Prompt untuk AI
+
+Implementasikan fitur pada halaman /student/friends yang sudah tersedia dengan ketentuan berikut:
+
+1️⃣ Akses dan Scope Data
+
+Hanya student yang login dapat mengakses halaman ini.
+
+Student hanya dapat melihat:
+
+Student lain yang berada dalam class yang sama.
+
+Jangan tampilkan student dari class lain.
+
+Jika student belum tergabung dalam class → tampilkan empty state yang jelas dan tidak error.
+
+2️⃣ Data yang Harus Ditampilkan
+
+Untuk setiap teman dalam class yang sama, tampilkan:
+
+Nama student
+
+Ringkasan pencapaian minggu berjalan (Senin–Minggu)
+
+Ringkasan terdiri dari:
+
+Total habit daily yang diselesaikan minggu ini
+
+Total habit daily yang seharusnya dikerjakan minggu ini
+
+Total habit weekly yang diselesaikan minggu ini
+
+Total habit weekly yang seharusnya dikerjakan minggu ini
+
+Persentase completion keseluruhan minggu berjalan
+
+Contoh struktur hasil akhir yang di-render:
+
+Nama: Budi
+Daily: 18 / 21
+Weekly: 2 / 3
+Progress: 83%
+3️⃣ Aturan Perhitungan Mingguan
+
+Minggu dimulai hari Senin 00:00:00
+
+Berakhir hari Minggu 23:59:59
+
+Gunakan timezone sistem.
+
+Logika:
+
+Habit daily dihitung berdasarkan record per tanggal dalam range minggu berjalan.
+
+Habit weekly dihitung satu kali dalam minggu tersebut.
+
+Jika habit weekly sudah diisi sekali, maka dianggap complete untuk minggu itu.
+
+Pastikan tidak menghitung data di luar minggu berjalan.
+
+4️⃣ Struktur Backend
+
+Jangan letakkan logic di view.
+
+Pisahkan menjadi:
+
+FriendController
+
+WeeklySummaryService
+
+Query menggunakan eager loading
+
+Gunakan aggregation query untuk menghitung summary
+
+Hindari N+1 query.
+
+5️⃣ UI/UX Requirement
+
+Tampilan harus:
+
+Responsif (mobile-first)
+
+Menggunakan card/grid layout
+
+Clean dan konsisten dengan dashboard student
+
+Tidak terlalu padat
+
+Struktur card sederhana:
+
+[Avatar / Initial]
+Nama Student
+
+Daily: 18 / 21
+Weekly: 2 / 3
+Progress Bar 83%
+
+Ketentuan UI:
+
+Gunakan progress bar visual
+
+Gunakan warna netral
+
+Ikon konsisten dengan design system sidebar
+
+Hindari animasi berlebihan
+
+Pastikan tidak error ketika data kosong
+
+6️⃣ Edge Case Handling
+
+Tangani kondisi berikut:
+
+Student belum punya class → tampilkan pesan informatif.
+
+Student tidak punya teman → tampilkan empty state:
+“Belum ada teman di kelas ini.”
+
+Student belum punya habit → tampilkan 0%.
+
+Hindari null reference dan undefined variable.
+
+Jika avatar kosong → tampilkan inisial nama.
+
+7️⃣ Keamanan
+
+Validasi bahwa student hanya dapat melihat data class miliknya.
+
+Jangan expose:
+
+Email
+
+Role
+
+Informasi sensitif lainnya
+
+8️⃣ Performa
+
+Jika 1 class memiliki banyak student:
+
+Gunakan pagination (maksimal 20 per halaman).
+
+Tambahkan optional search sederhana.
+
+Pastikan query tetap efisien.
+
+9️⃣ Validasi Final
+
+Sebelum menyelesaikan implementasi, pastikan:
+
+Tidak ada error undefined variable.
+
+Tidak ada N+1 query.
+
+Perhitungan minggu sesuai standar Senin–Minggu.
+
+UI tidak rusak di layar mobile.
+
+Data tidak bocor ke class lain.
+
+Halaman /student/friends benar-benar terisi dan menampilkan data dinamis.
+
+Hasil akhir: halaman /student/friends yang sebelumnya kosong kini menampilkan daftar teman sekelas beserta ringkasan pencapaian minggu berjalan secara rapi, ringan, dan dapat dianalisis dengan cepat oleh student.

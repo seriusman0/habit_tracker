@@ -1,171 +1,155 @@
-🎯 Konteks
-
-Route /student/friends sudah dibuat sebelumnya.
-
-Saat ini halaman tersebut masih kosong / belum memiliki logic dan tampilan.
-
-Tugas: Mengisi halaman tersebut dengan fitur ringkasan pencapaian teman sekelas.
-
-🧠 Prompt untuk AI
-
-Implementasikan fitur pada halaman /student/friends yang sudah tersedia dengan ketentuan berikut:
-
-1️⃣ Akses dan Scope Data
-
-Hanya student yang login dapat mengakses halaman ini.
-
-Student hanya dapat melihat:
-
-Student lain yang berada dalam class yang sama.
-
-Jangan tampilkan student dari class lain.
-
-Jika student belum tergabung dalam class → tampilkan empty state yang jelas dan tidak error.
-
-2️⃣ Data yang Harus Ditampilkan
-
-Untuk setiap teman dalam class yang sama, tampilkan:
-
-Nama student
-
-Ringkasan pencapaian minggu berjalan (Senin–Minggu)
-
-Ringkasan terdiri dari:
-
-Total habit daily yang diselesaikan minggu ini
-
-Total habit daily yang seharusnya dikerjakan minggu ini
-
-Total habit weekly yang diselesaikan minggu ini
-
-Total habit weekly yang seharusnya dikerjakan minggu ini
-
-Persentase completion keseluruhan minggu berjalan
-
-Contoh struktur hasil akhir yang di-render:
-
-Nama: Budi
-Daily: 18 / 21
-Weekly: 2 / 3
-Progress: 83%
-3️⃣ Aturan Perhitungan Mingguan
-
-Minggu dimulai hari Senin 00:00:00
-
-Berakhir hari Minggu 23:59:59
-
-Gunakan timezone sistem.
-
-Logika:
-
-Habit daily dihitung berdasarkan record per tanggal dalam range minggu berjalan.
-
-Habit weekly dihitung satu kali dalam minggu tersebut.
-
-Jika habit weekly sudah diisi sekali, maka dianggap complete untuk minggu itu.
-
-Pastikan tidak menghitung data di luar minggu berjalan.
-
-4️⃣ Struktur Backend
-
-Jangan letakkan logic di view.
-
-Pisahkan menjadi:
-
-FriendController
-
-WeeklySummaryService
-
-Query menggunakan eager loading
-
-Gunakan aggregation query untuk menghitung summary
-
-Hindari N+1 query.
-
-5️⃣ UI/UX Requirement
-
-Tampilan harus:
-
-Responsif (mobile-first)
-
-Menggunakan card/grid layout
-
-Clean dan konsisten dengan dashboard student
-
-Tidak terlalu padat
-
-Struktur card sederhana:
-
-[Avatar / Initial]
-Nama Student
-
-Daily: 18 / 21
-Weekly: 2 / 3
-Progress Bar 83%
-
-Ketentuan UI:
-
-Gunakan progress bar visual
-
-Gunakan warna netral
-
-Ikon konsisten dengan design system sidebar
-
-Hindari animasi berlebihan
-
-Pastikan tidak error ketika data kosong
-
-6️⃣ Edge Case Handling
-
-Tangani kondisi berikut:
-
-Student belum punya class → tampilkan pesan informatif.
-
-Student tidak punya teman → tampilkan empty state:
-“Belum ada teman di kelas ini.”
-
-Student belum punya habit → tampilkan 0%.
-
-Hindari null reference dan undefined variable.
-
-Jika avatar kosong → tampilkan inisial nama.
-
-7️⃣ Keamanan
-
-Validasi bahwa student hanya dapat melihat data class miliknya.
-
-Jangan expose:
-
-Email
-
-Role
-
-Informasi sensitif lainnya
-
-8️⃣ Performa
-
-Jika 1 class memiliki banyak student:
-
-Gunakan pagination (maksimal 20 per halaman).
-
-Tambahkan optional search sederhana.
-
-Pastikan query tetap efisien.
-
-9️⃣ Validasi Final
-
-Sebelum menyelesaikan implementasi, pastikan:
-
-Tidak ada error undefined variable.
-
-Tidak ada N+1 query.
-
-Perhitungan minggu sesuai standar Senin–Minggu.
-
-UI tidak rusak di layar mobile.
-
-Data tidak bocor ke class lain.
-
-Halaman /student/friends benar-benar terisi dan menampilkan data dinamis.
-
-Hasil akhir: halaman /student/friends yang sebelumnya kosong kini menampilkan daftar teman sekelas beserta ringkasan pencapaian minggu berjalan secara rapi, ringan, dan dapat dianalisis dengan cepat oleh student.
+FINAL PRODUCTION SECURITY & STABILITY AUDIT
+
+TUJUAN UTAMA:
+Pastikan project benar-benar siap deploy ke server hosting.
+Tidak ada celah keamanan tersisa.
+Tidak ada konfigurasi development yang tertinggal.
+Semua error ditangani dengan aman dan user-friendly (tidak teknis).
+
+Jangan menambahkan fitur baru.
+Fokus hanya audit, hardening, dan kesiapan production.
+
+==================================================
+1. NONAKTIFKAN SEMUA MODE DEVELOPMENT
+==================================================
+Pastikan:
+- APP_ENV=production
+- APP_DEBUG=false
+- Tidak ada dd(), dump(), console.log() tersisa.
+- Tidak ada route testing/debug aktif.
+- Tidak ada file percobaan di public folder.
+
+Cache ulang:
+- config
+- route
+- view
+
+==================================================
+2. HARDENING KEAMANAN WAJIB
+==================================================
+
+A. AUTHORIZATION
+- Semua route memiliki middleware auth.
+- Route admin hanya bisa diakses admin.
+- Route mentor hanya bisa diakses mentor.
+- Route student hanya bisa diakses student.
+- Tidak ada IDOR (akses data via manipulasi ID URL).
+
+B. VALIDASI INPUT
+- Semua form menggunakan FormRequest atau validator.
+- Tidak ada input tanpa validasi.
+- Sanitasi input string.
+- Cegah mass assignment (gunakan $fillable).
+
+C. CSRF & SESSION
+- CSRF aktif di semua form.
+- Session httpOnly dan secure (jika HTTPS).
+- Regenerate session setelah login.
+
+D. PASSWORD
+- Gunakan hashing bcrypt/argon.
+- Tidak ada password plain text di database.
+- Rate limit login aktif.
+
+==================================================
+3. ERROR HANDLING (WAJIB USER-FRIENDLY)
+==================================================
+
+Pastikan:
+
+A. APP_DEBUG=false.
+B. Buat halaman custom:
+   - 403 (Akses tidak diizinkan)
+   - 404 (Halaman tidak ditemukan)
+   - 500 (Terjadi kesalahan sistem)
+
+Ketentuan:
+- Tidak menampilkan stack trace.
+- Tidak menampilkan path file.
+- Tidak menampilkan query database.
+- Gunakan bahasa yang mudah dipahami user non-teknis.
+
+Contoh gaya pesan:
+"Terjadi gangguan pada sistem. Silakan coba beberapa saat lagi."
+
+C. Logging tetap aktif di storage/logs untuk admin, tapi tidak terlihat oleh user.
+
+==================================================
+4. DATABASE & DATA SAFETY
+==================================================
+
+- Semua foreign key aktif.
+- Tidak ada orphan record.
+- Index tersedia untuk kolom relasi penting.
+- Migration sudah final.
+- Tidak ada kolom testing yang tidak terpakai.
+
+Pastikan:
+- Relasi classroom, mentor, student konsisten.
+- Reporting admin dan mentor memakai service layer yang sama.
+- Reset daily & weekly berjalan sesuai aturan.
+
+==================================================
+5. PERFORMA DASAR
+==================================================
+
+- Tidak ada N+1 query.
+- Gunakan eager loading.
+- Gunakan pagination untuk data besar.
+- Tidak ada query berat di blade/view.
+- Tidak ada loop perhitungan kompleks di frontend.
+
+==================================================
+6. FILE & PERMISSION CHECK
+==================================================
+
+- storage/ dapat ditulis.
+- bootstrap/cache/ dapat ditulis.
+- Tidak ada file .env dapat diakses publik.
+- Nonaktifkan directory listing di hosting.
+
+==================================================
+7. FINAL ROUTE & FEATURE AUDIT
+==================================================
+
+Periksa manual:
+
+ADMIN:
+- Classroom attach student sinkron.
+- Reporting tampil benar.
+
+MENTOR:
+- My-students konsisten dengan admin.
+- Tidak bisa akses student luar class.
+
+STUDENT:
+- Daily reset per tanggal.
+- Weekly reset hari Minggu.
+- Friends hanya class yang sama.
+
+==================================================
+8. CLEANUP DEVELOPMENT ARTIFACT
+==================================================
+
+Hapus:
+- File backup lama.
+- File .sql di public.
+- Dokumentasi internal di root.
+- Script testing.
+- Seeder yang tidak diperlukan di production.
+
+==================================================
+9. KONFIRMASI AKHIR SEBELUM DEPLOY
+==================================================
+
+Pastikan:
+- Tidak ada error di log terbaru.
+- Tidak ada warning di browser console.
+- Semua role terisolasi dengan benar.
+- Error page tampil ramah user.
+- Sistem tetap stabil jika data kosong.
+
+OUTPUT YANG DIHARAPKAN:
+1. Daftar potensi celah keamanan (jika ada).
+2. Daftar perbaikan yang dilakukan.
+3. Konfirmasi bahwa sistem aman untuk deploy manual ke hosting.

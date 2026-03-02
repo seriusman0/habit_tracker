@@ -26,6 +26,7 @@ class ViewStudentReport extends Page
     {
         // Reuse logika widget milik Admin (Menjauhi N+1 Logika Duplikasi)
         return [
+            \App\Filament\Resources\ReportingResource\Widgets\StudentWeeklySummaryWidget::make(['record' => $this->record]),
             StudentReportStats::make(['record' => $this->record]),
             StudentPerformanceChart::make(['record' => $this->record]),
         ];

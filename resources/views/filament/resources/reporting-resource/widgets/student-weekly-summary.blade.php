@@ -12,6 +12,29 @@
             </div>
         </div>
 
+        @if(isset($summaryStats))
+        <div class="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total Pencapaian Minggu Ini</span>
+                <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">{{ $summaryStats['progress_percentage'] }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 dark:bg-gray-700 overflow-hidden">
+                <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                     style="width: {{ $summaryStats['progress_percentage'] }}%"></div>
+            </div>
+            <div class="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-1.5">
+                    <x-filament::icon icon="heroicon-m-clipboard-document-list" class="w-4 h-4 text-gray-400" />
+                    <span>Daily: <strong class="text-gray-900 dark:text-white">{{ $summaryStats['daily_completed'] }}</strong> / {{ $summaryStats['daily_expected'] }}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <x-filament::icon icon="heroicon-m-calendar-days" class="w-4 h-4 text-gray-400" />
+                    <span>Weekly: <strong class="text-gray-900 dark:text-white">{{ $summaryStats['weekly_completed'] }}</strong> / {{ $summaryStats['weekly_expected'] }}</span>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="overflow-x-auto ring-1 ring-gray-950/5 rounded-lg dark:ring-white/10">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-gray-50 dark:bg-white/5">

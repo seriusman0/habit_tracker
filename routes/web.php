@@ -23,23 +23,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');
 
     Route::resource('habits', \App\Http\Controllers\HabitController::class);
-    Route::post('/habits/{habit}/toggle/{date}', [\App\Http\Controllers\HabitLogController::class, 'toggle'])->name('habits.toggle');
+    Route::post('/habits/{habit}/toggle/{date}', [\App\Http\Controllers\HabitLogController::class , 'toggle'])->name('habits.toggle');
 });
 
-// System Cleanup Route for Production
-Route::get('/sys-clean-up', function () {
-    Artisan::call('cache:clear');
-    Artisan::call('config:clear');
-    Artisan::call('route:clear');
-    Artisan::call('permission:cache-reset');
-
-    return 'System cleaned up! (Cache, Config, Route, Permission)';
-});
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

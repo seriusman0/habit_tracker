@@ -71,11 +71,14 @@ class StudentWeeklySummaryWidget extends Widget
                 'days' => $daysStatus,
             ];
         }
+        $summaries = app(\App\Services\WeeklySummaryService::class)->getWeeklySummariesForStudents([$studentId]);
+        $summaryStats = $summaries[$studentId] ?? null;
 
         return [
             'habitsData' => $habitsData,
             'weekStart' => $weekStart,
             'weekEnd' => $weekEnd,
+            'summaryStats' => $summaryStats,
         ];
     }
 }

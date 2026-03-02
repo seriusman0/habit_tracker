@@ -1,22 +1,24 @@
 <script setup>
-import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
-import { ListTodo, Users, Home, User, LogOut, Search } from "lucide-vue-next";
-import { ref, computed } from "vue";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
+import { ListTodo, Users, Home, User, LogOut, Search, Trophy, CalendarCheck } from "lucide-vue-next";
+import { ref, watch } from "vue";
+import debounce from "lodash/debounce";
 
 const props = defineProps({
-    friends: Array,
+    friends: Object, // Sekarang berbentuk Paginated Object dari Laravel
+    filters: Object,
 });
 
-const search = ref("");
+const search = ref(props.filters.search || "");
 
-const filteredFriends = computed(() => {
-    if (!search.value) return props.friends;
-    return props.friends.filter(
-        (friend) =>
-            friend.name.toLowerCase().includes(search.value.toLowerCase()) ||
-            friend.email.toLowerCase().includes(search.value.toLowerCase()),
+// Watch input search dan trigger request ke server via Inertia dengan Debounce (Anti-Spam)
+watch(search, debounce(function (value) {
+    router.get(
+        route('student.friends.index'),
+        { search: value },
+        { preserveState: true, replace: true }
     );
-});
+}, 300));
 
 const logout = () => {
     useForm({}).post(route("logout"));
@@ -36,9 +38,12 @@ const logout = () => {
             <header
                 class="bg-white dark:bg-gray-700 px-6 py-5 border-b border-gray-200 dark:border-gray-600 sticky top-0 z-20 flex justify-between items-center"
             >
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Teman Kelas
-                </h1>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        Teman Kelas
+                    </h1>
+                    <p class="text-xs text-gray-500 mt-1">Pencapaian Minggu Ini</p>
+                </div>
                 <button
                     @click="logout"
                     class="text-gray-500 hover:text-red-500 transition-colors"
@@ -61,33 +66,76 @@ const logout = () => {
                     />
                 </div>
 
+                <!-- Empty State -->
                 <div
-                    v-if="filteredFriends.length === 0"
+                    v-if="!friends.data || friends.data.length === 0"
                     class="text-center text-gray-500 dark:text-gray-400 py-10"
                 >
-                    Tidak ada teman ditemukan.
+                    <div v-if="search" class="text-sm">
+                        Tidak ada teman yang cocok dengan "{{ search }}".
+                    </div>
+                    <div v-else class="text-sm">
+                        Belum ada teman di kelas ini. <br/>Atau kamu belum tergabung ke kelas manapun.
+                    </div>
                 </div>
 
-                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <!-- Cards Grid -->
+                <div class="grid grid-cols-1 gap-4">
                     <div
-                        v-for="friend in filteredFriends"
+                        v-for="friend in friends.data"
                         :key="friend.id"
-                        class="flex items-center gap-4 py-4 first:pt-0"
+                        class="bg-white dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm"
                     >
-                        <div
-                            class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-gray-600 flex items-center justify-center text-indigo-500 dark:text-gray-300 font-bold text-lg shadow-sm"
-                        >
-                            {{ friend.name.charAt(0).toUpperCase() }}
+                        <div class="flex items-center gap-4 mb-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-gray-600 flex items-center justify-center text-indigo-500 dark:text-gray-300 font-bold text-lg shadow-sm shrink-0"
+                            >
+                                {{ friend.name.charAt(0).toUpperCase() }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-gray-900 dark:text-white truncate">
+                                    {{ friend.name }}
+                                </h3>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                                    {{ friend.weekly_summary ? friend.weekly_summary.progress_percentage : 0 }}<span class="text-sm">%</span>
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-gray-900 dark:text-white">
-                                {{ friend.name }}
-                            </h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ friend.email }}
-                            </p>
+
+                        <!-- Progress Bar Base -->
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-4 dark:bg-gray-700 overflow-hidden">
+                            <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500 ease-out" 
+                                 :style="`width: ${friend.weekly_summary ? friend.weekly_summary.progress_percentage : 0}%`"></div>
+                        </div>
+
+                        <!-- Stats Fraction -->
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300">
+                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 rounded-md border border-gray-100 dark:border-gray-600/50">
+                                <ListTodo class="w-3.5 h-3.5 text-gray-400" />
+                                <span>Daily: <strong class="text-gray-900 dark:text-white">{{ friend.weekly_summary ? friend.weekly_summary.daily_completed : 0 }}</strong> / {{ friend.weekly_summary ? friend.weekly_summary.daily_expected : 0 }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 rounded-md border border-gray-100 dark:border-gray-600/50">
+                                <CalendarCheck class="w-3.5 h-3.5 text-gray-400" />
+                                <span>Weekly: <strong class="text-gray-900 dark:text-white">{{ friend.weekly_summary ? friend.weekly_summary.weekly_completed : 0 }}</strong> / {{ friend.weekly_summary ? friend.weekly_summary.weekly_expected : 0 }}</span>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Server Pagination Links -->
+                <div v-if="friends.links && friends.links.length > 3" class="mt-6 flex justify-center flex-wrap gap-1">
+                    <template v-for="(link, p) in friends.links" :key="p">
+                        <div v-if="link.url === null" 
+                             class="mb-1 mr-1 px-3 py-2 text-sm text-gray-400 border rounded dark:border-gray-600"
+                             v-html="link.label"></div>
+                        <Link v-else
+                              class="mb-1 mr-1 px-3 py-2 text-sm border rounded focus:text-indigo-500 focus:border-indigo-500 hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600 dark:text-white"
+                              :class="{ 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-bold border-indigo-300 dark:border-indigo-500': link.active }"
+                              :href="link.url"
+                              v-html="link.label"></Link>
+                    </template>
                 </div>
             </main>
 

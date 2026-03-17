@@ -117,4 +117,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->belongsTo(GeneticType::class);
     }
+
+    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Attendance::class, 'student_id');
+    }
 }

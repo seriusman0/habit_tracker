@@ -18,4 +18,9 @@ class Classroom extends Model
         return $this->belongsToMany(User::class, 'classroom_students', 'classroom_id', 'student_id')
             ->withTimestamps();
     }
+
+    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

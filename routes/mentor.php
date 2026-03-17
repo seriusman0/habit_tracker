@@ -8,6 +8,9 @@ Route::middleware(['auth', 'verified', 'role:mentor'])->prefix('mentor')->name('
     Route::get('/api/classrooms/{classroom}', [ClassroomController::class, 'show'])->name('api.classrooms.show');
     Route::post('/api/classrooms/{classroom}/assign', [ClassroomController::class, 'assignHabit'])->name('api.classrooms.assign');
 
+    // Attendance Approvals
+    Route::patch('/api/attendances/{attendance}/status', [\App\Http\Controllers\Mentor\AttendanceController::class, 'updateStatus'])->name('api.attendances.update-status');
+
     // My Habits (Replica of Student Feature)
     Route::get('/my-habits', [\App\Http\Controllers\Mentor\MyHabitController::class, 'index'])->name('my-habits.index');
     Route::post('/my-habits', [\App\Http\Controllers\Mentor\MyHabitController::class, 'store'])->name('my-habits.store');

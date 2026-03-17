@@ -20,13 +20,26 @@ import {
     User,
     Circle,
     LogOut,
+    UserCheck,
 } from "lucide-vue-next";
 import { ref, computed } from "vue";
 
 const props = defineProps({
     categories: Array,
     todaysReflection: Object,
+    classrooms: {
+        type: Array,
+        default: () => [],
+    },
 });
+
+const submitAttendance = (classroomId) => {
+    router.post(
+        route("student.attendances.store"),
+        { classroom_id: classroomId },
+        { preserveScroll: true }
+    );
+};
 
 // State for toggling accordion
 const openCategories = ref({});
@@ -116,6 +129,33 @@ const logout = () => {
 
             <!-- Main Content -->
             <main class="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide">
+                <!-- Absensi / Kehadiran -->
+                <div v-if="classrooms && classrooms.length > 0" class="mb-6 space-y-3">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Kehadiran Kelas</h2>
+                    <div v-for="classroom in classrooms" :key="classroom.id" class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-indigo-900 dark:text-indigo-100">{{ classroom.name }}</h3>
+                            <p class="text-xs mt-1" :class="{
+                                'text-gray-500': !classroom.todays_attendance,
+                                'text-yellow-600 font-semibold': classroom.todays_attendance?.status === 'pending',
+                                'text-green-600 font-semibold': classroom.todays_attendance?.status === 'accepted',
+                                'text-red-600 font-semibold': classroom.todays_attendance?.status === 'rejected'
+                            }">
+                                {{
+                                    !classroom.todays_attendance ? 'Belum absen hari ini' :
+                                    (classroom.todays_attendance.status === 'pending' ? 'Menunggu konfirmasi mentor' :
+                                    (classroom.todays_attendance.status === 'accepted' ? 'Hadir (Disetujui Mentor)' : 'Ditolak oleh Mentor'))
+                                }}
+                            </p>
+                        </div>
+                        <button v-if="!classroom.todays_attendance || classroom.todays_attendance.status === 'rejected'"
+                                @click="submitAttendance(classroom.id)"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                            <UserCheck class="w-4 h-4"/> Absen
+                        </button>
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between mb-4">
                     <h2
                         class="text-lg font-semibold text-gray-900 dark:text-gray-100"

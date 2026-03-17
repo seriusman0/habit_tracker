@@ -31,6 +31,7 @@ class EditMyClass extends EditRecord
     protected function getFooterWidgets(): array
     {
         return [
+            \App\Filament\Mentor\Widgets\ClassroomAttendanceWidget::class,
             \App\Filament\Mentor\Widgets\HabitAssignmentWidget::class,
         ];
     }

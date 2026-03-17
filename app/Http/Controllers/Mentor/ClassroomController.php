@@ -30,12 +30,20 @@ class ClassroomController extends Controller
             ->where('is_active', true)
             ->get();
 
+        // Get today's attendances for this classroom
+        /** @var \App\Models\Classroom $classroom */
+        $attendances = \App\Models\Attendance::with('student:id,name')
+            ->where('classroom_id', $classroom->id)
+            ->whereDate('date', now()->toDateString())
+            ->get();
+
         // If no templates exist, maybe fetch some "Generic" ones or just empty.
 
         return response()->json([
             'classroom' => $classroom,
             'students' => $classroom->students,
             'templates' => $templates,
+            'attendances' => $attendances,
         ]);
     }
 

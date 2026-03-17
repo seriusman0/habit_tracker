@@ -78,9 +78,21 @@ class DashboardController extends Controller
             ->whereDate('ref_date', $today)
             ->first();
 
+        // 5. Fetch Classrooms and today's attendance for the student
+        /** @var \App\Models\User $user */
+        $classrooms = $user->classrooms()->with(['attendances' => function ($q) use ($today, $studentId) {
+            $q->where('student_id', $studentId)
+              ->whereDate('date', $today);
+        }])->get()->map(function ($classroom) {
+            $classroom->todays_attendance = $classroom->attendances->first();
+            unset($classroom->attendances);
+            return $classroom;
+        });
+
         return Inertia::render('Student/Dashboard', [
             'categories' => $categories,
             'todaysReflection' => $todaysReflection,
+            'classrooms' => $classrooms,
         ]);
     }
 }

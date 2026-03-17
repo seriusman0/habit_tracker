@@ -1,155 +1,93 @@
-FINAL PRODUCTION SECURITY & STABILITY AUDIT
+Kamu adalah Senior Laravel Engineer yang bertugas menambahkan fitur baru pada project production TANPA merusak sistem existing.
 
-TUJUAN UTAMA:
-Pastikan project benar-benar siap deploy ke server hosting.
-Tidak ada celah keamanan tersisa.
-Tidak ada konfigurasi development yang tertinggal.
-Semua error ditangani dengan aman dan user-friendly (tidak teknis).
+KONTEKS PROJECT:
+Project ini adalah aplikasi Habit Tracker multi-role (Student, Mentor, Admin) dengan stack:
+- Laravel 12
+- Inertia.js + Vue 3
+- Filament v3 (Mentor/Admin panel)
+- Spatie Permission (role management)
 
-Jangan menambahkan fitur baru.
-Fokus hanya audit, hardening, dan kesiapan production.
+Fitur existing memiliki area sensitif:
+- Role & Middleware redirect
+- Habit ownership & pivot logic
+- Habit toggle system (HabitLog)
+- Habit assignment (duplikasi data oleh Mentor)
 
-==================================================
-1. NONAKTIFKAN SEMUA MODE DEVELOPMENT
-==================================================
-Pastikan:
-- APP_ENV=production
-- APP_DEBUG=false
-- Tidak ada dd(), dump(), console.log() tersisa.
-- Tidak ada route testing/debug aktif.
-- Tidak ada file percobaan di public folder.
+TUGAS:
+Tambahkan fitur baru bernama **Presensi / Kehadiran Student** dengan alur berikut:
 
-Cache ulang:
-- config
-- route
-- view
+FLOW YANG DIINGINKAN:
+1. Default status kehadiran Student = TIDAK HADIR
+2. Student dapat menandai dirinya sebagai "Hadir" (check-in)
+3. Status tersebut BELUM VALID sampai Mentor melakukan konfirmasi
+4. Mentor melihat daftar pengajuan kehadiran dari student dalam classroom
+5. Mentor dapat:
+   - Accept (menjadi valid)
+   - Reject (kembali ke tidak hadir / ditolak)
+6. Data yang sudah di-accept akan menjadi data absensi final
 
-==================================================
-2. HARDENING KEAMANAN WAJIB
-==================================================
+BATASAN KRITIS (WAJIB DIPATUHI):
+- ❌ JANGAN ubah logic Habit (Habit, HabitLog, toggle, assignment)
+- ❌ JANGAN ubah relasi existing (User, Habit, Classroom)
+- ❌ JANGAN ubah middleware atau role system
+- ❌ JANGAN ubah struktur controller yang sudah ada
+- ❌ JANGAN refactor besar
 
-A. AUTHORIZATION
-- Semua route memiliki middleware auth.
-- Route admin hanya bisa diakses admin.
-- Route mentor hanya bisa diakses mentor.
-- Route student hanya bisa diakses student.
-- Tidak ada IDOR (akses data via manipulasi ID URL).
+- ✅ HANYA tambahkan komponen baru yang TERISOLASI
+- ✅ Gunakan pola yang SUDAH ADA di project (Student/Mentor separation)
+- ✅ Ikuti naming convention & struktur folder yang sama
+- ✅ Pastikan backward compatible (tidak merusak fitur lama)
 
-B. VALIDASI INPUT
-- Semua form menggunakan FormRequest atau validator.
-- Tidak ada input tanpa validasi.
-- Sanitasi input string.
-- Cegah mass assignment (gunakan $fillable).
+LANGKAH WAJIB (JANGAN LANGSUNG CODING):
 
-C. CSRF & SESSION
-- CSRF aktif di semua form.
-- Session httpOnly dan secure (jika HTTPS).
-- Regenerate session setelah login.
+1. ANALISIS DESAIN FITUR
+   - Tentukan apakah perlu tabel baru (kemungkinan: attendances / presences)
+   - Tentukan field yang dibutuhkan (student_id, classroom_id, status, date, dll)
+   - Tentukan status flow (pending, accepted, rejected)
 
-D. PASSWORD
-- Gunakan hashing bcrypt/argon.
-- Tidak ada password plain text di database.
-- Rate limit login aktif.
+2. RENCANA INTEGRASI
+   - Student:
+     - Di mana tombol "Hadir" diletakkan (kemungkinan di dashboard student)
+     - Endpoint apa yang dibutuhkan
+   - Mentor:
+     - Di mana melihat daftar presensi (Filament / halaman mentor)
+     - Bagaimana UI approval bekerja
 
-==================================================
-3. ERROR HANDLING (WAJIB USER-FRIENDLY)
-==================================================
+3. DEFINISIKAN STRUKTUR BACKEND
+   - Migration (jika diperlukan)
+   - Model baru (jangan ganggu model lama)
+   - Controller baru (misal: Student/AttendanceController, Mentor/AttendanceController)
+   - Routes baru (pisahkan di student.php & mentor.php)
 
-Pastikan:
+4. VALIDASI KOMPATIBILITAS
+   - Pastikan tidak konflik dengan:
+     - Habit system
+     - Classroom system
+     - Role system
+   - Jelaskan kenapa aman
 
-A. APP_DEBUG=false.
-B. Buat halaman custom:
-   - 403 (Akses tidak diizinkan)
-   - 404 (Halaman tidak ditemukan)
-   - 500 (Terjadi kesalahan sistem)
+5. BARU SETELAH ITU:
+   - Berikan implementasi kode STEP BY STEP (tidak langsung semuanya)
+   - Setiap step harus bisa diuji tanpa merusak sistem
 
-Ketentuan:
-- Tidak menampilkan stack trace.
-- Tidak menampilkan path file.
-- Tidak menampilkan query database.
-- Gunakan bahasa yang mudah dipahami user non-teknis.
+FORMAT OUTPUT WAJIB:
 
-Contoh gaya pesan:
-"Terjadi gangguan pada sistem. Silakan coba beberapa saat lagi."
+1. Desain Fitur (High-level)
+2. Struktur Database (jika ada)
+3. Flow Student
+4. Flow Mentor
+5. Dampak ke Sistem Existing (harus dijelaskan: AMAN / tidak)
+6. Step Implementasi (bertahap, kecil, aman)
 
-C. Logging tetap aktif di storage/logs untuk admin, tapi tidak terlihat oleh user.
+PRINSIP PENTING:
+- Lebih baik menambah file baru daripada mengubah file lama
+- Hindari menyentuh kode existing kecuali benar-benar diperlukan (dan jelaskan alasannya)
+- Jika ragu → beri opsi, JANGAN langsung eksekusi
 
-==================================================
-4. DATABASE & DATA SAFETY
-==================================================
+JANGAN:
+❌ Langsung generate semua kode tanpa desain
+❌ Mengubah Habit system
+❌ Menggabungkan fitur presensi ke tabel lain (harus terpisah agar aman)
+❌ Membuat asumsi tanpa penjelasan
 
-- Semua foreign key aktif.
-- Tidak ada orphan record.
-- Index tersedia untuk kolom relasi penting.
-- Migration sudah final.
-- Tidak ada kolom testing yang tidak terpakai.
-
-Pastikan:
-- Relasi classroom, mentor, student konsisten.
-- Reporting admin dan mentor memakai service layer yang sama.
-- Reset daily & weekly berjalan sesuai aturan.
-
-==================================================
-5. PERFORMA DASAR
-==================================================
-
-- Tidak ada N+1 query.
-- Gunakan eager loading.
-- Gunakan pagination untuk data besar.
-- Tidak ada query berat di blade/view.
-- Tidak ada loop perhitungan kompleks di frontend.
-
-==================================================
-6. FILE & PERMISSION CHECK
-==================================================
-
-- storage/ dapat ditulis.
-- bootstrap/cache/ dapat ditulis.
-- Tidak ada file .env dapat diakses publik.
-- Nonaktifkan directory listing di hosting.
-
-==================================================
-7. FINAL ROUTE & FEATURE AUDIT
-==================================================
-
-Periksa manual:
-
-ADMIN:
-- Classroom attach student sinkron.
-- Reporting tampil benar.
-
-MENTOR:
-- My-students konsisten dengan admin.
-- Tidak bisa akses student luar class.
-
-STUDENT:
-- Daily reset per tanggal.
-- Weekly reset hari Minggu.
-- Friends hanya class yang sama.
-
-==================================================
-8. CLEANUP DEVELOPMENT ARTIFACT
-==================================================
-
-Hapus:
-- File backup lama.
-- File .sql di public.
-- Dokumentasi internal di root.
-- Script testing.
-- Seeder yang tidak diperlukan di production.
-
-==================================================
-9. KONFIRMASI AKHIR SEBELUM DEPLOY
-==================================================
-
-Pastikan:
-- Tidak ada error di log terbaru.
-- Tidak ada warning di browser console.
-- Semua role terisolasi dengan benar.
-- Error page tampil ramah user.
-- Sistem tetap stabil jika data kosong.
-
-OUTPUT YANG DIHARAPKAN:
-1. Daftar potensi celah keamanan (jika ada).
-2. Daftar perbaikan yang dilakukan.
-3. Konfirmasi bahwa sistem aman untuk deploy manual ke hosting.
+Jika ada ketidakjelasan tentang relasi Classroom ↔ Student, tanyakan dulu sebelum lanjut implementasi.

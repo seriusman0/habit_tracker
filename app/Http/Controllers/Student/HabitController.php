@@ -25,8 +25,8 @@ class HabitController extends Controller
         $categoryId = null;
         if ($request->filled('category_name')) {
             $category = HabitCategory::firstOrCreate(
-                ['student_id' => $studentId, 'name' => $request->category_name],
-                []
+            ['student_id' => $studentId, 'name' => $request->category_name],
+            []
             );
             $categoryId = $category->id;
         }
@@ -57,45 +57,50 @@ class HabitController extends Controller
     {
         $userId = Auth::id();
 
-        // Check if user is the owner OR if user has this habit assigned
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        $hasAssigned = $user && $user->habits()->where('habit_id', $habit->id)->exists();
+
+        $assignedHabit = $user ? $user->habits()->where('habit_id', $habit->id)->first() : null;
+        $hasAssigned = (bool)$assignedHabit;
 
         if ($habit->student_id !== $userId && !$hasAssigned) {
             abort(403);
         }
 
-        $today = now()->toDateString();
-        // Ensure we only touch the current student's log
+        // Ambil penentu frekuensi (Timpa nilai Pivot jika ada)
+        $frequency = $assignedHabit ? ($assignedHabit->pivot->frequency ?? $habit->frequency) : $habit->frequency;
+
+        // Aturan Periode Sentinel
+        // Apabila Weekly -> Rekaman mengikat ke Tanggal Senin (Mulai Minggu Tersebut)
+        $logDate = ($frequency === 'weekly')
+            ? now()->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString()
+            : now()->toDateString();
+
+        // Cari rekaman berdasarkan identifier (Senin / Hari ini)
         $log = $habit->logs()
             ->where('student_id', $userId)
-            ->whereDate('log_date', $today)
+            ->whereDate('log_date', $logDate)
             ->first();
 
         if ($log) {
-            // Toggle Logic: If completed -> delete (reset). If failed -> delete? 
-            // Text says "toggle record hari ini". Simple toggle: Done <-> Not Done (or Null).
-            // Let's assume if it exists -> delete. If not exists -> create 'completed'.
-            // Requirement says "ombol ✅ menandai done, tombol ❌ menandai not done".
-            // So we might need specific status input.
-            // Let's check request input 'status'.
-
-            if ($request->has('status')) {
-                $status = $request->input('status'); // 'completed' or 'failed' (skipped?)
+            if ($request->has('status') && $request->input('status') !== 'none') {
+                $status = $request->input('status');
                 $log->update(['status' => $status, 'logged_at' => now()]);
-            } else {
-                // Toggle behavior if no status provided?
-                $log->delete(); // Remove log
             }
-        } else {
-            $status = $request->input('status', 'completed');
-            $habit->logs()->create([
-                'student_id' => $userId,
-                'log_date' => $today,
-                'status' => $status,
-                'logged_at' => now(),
-            ]);
+            else {
+                $log->delete(); // Remove log (Belum diisi)
+            }
+        }
+        else {
+            if ($request->has('status') && $request->input('status') !== 'none') {
+                $status = $request->input('status');
+                $habit->logs()->create([
+                    'student_id' => $userId,
+                    'log_date' => $logDate,
+                    'status' => $status,
+                    'logged_at' => now(),
+                ]);
+            }
         }
 
         return back();

@@ -124,7 +124,7 @@ const onDrop = async (event, student) => {
                     habit_id: habitTemplate.id,
                 },
             );
-            console.log("Assigned:", response.data);
+
             // Verify/Update the habit in the list with the real one from DB if needed
             // But 'added' element is the template copy.
             // Ideally we replace it with the new DB record, but for visual feedback it's fine.

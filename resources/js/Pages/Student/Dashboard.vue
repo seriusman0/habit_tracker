@@ -71,19 +71,7 @@ const isMoodActive = (mood) => {
     return props.todaysReflection?.mood === mood;
 };
 
-// Add Habit Modal Logic (Simple Prompt for MVP)
-const addHabit = () => {
-    const title = prompt("Nama kebiasaan baru:");
-    if (title) {
-        const category = prompt("Kategori (opsional):");
-        router.post(route("student.habits.store"), {
-            title: title,
-            category_name: category,
-            color: "bg-indigo-500", // Default
-            frequency: "daily",
-        });
-    }
-};
+// Add Habit dihapus karena student hanya mengelola habit dari asign mentor
 
 // Icon mapping helper (simplified)
 const getIcon = (categoryName) => {
@@ -134,13 +122,7 @@ const logout = () => {
                     >
                         Kategori Kebiasaan
                     </h2>
-                    <button
-                        @click="addHabit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-sm flex items-center transition-colors"
-                    >
-                        <Plus class="w-4 h-4 mr-1" />
-                        TAMBAH
-                    </button>
+                    <!-- Tombol Tambah Dihapus -->
                 </div>
 
                 <div class="space-y-3 pb-6">
@@ -203,59 +185,76 @@ const logout = () => {
                             <div
                                 v-for="habit in category.habits"
                                 :key="habit.id"
-                                class="flex items-center justify-between p-2 rounded-lg transition-colors"
+                                class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-xl transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 gap-3"
                                 :class="{
-                                    'bg-green-50/50 dark:bg-green-900/10':
+                                    'bg-green-50/80 dark:bg-green-900/20':
                                         habit.todays_log?.status ===
                                         'completed',
-                                    'bg-red-50/50 dark:bg-red-900/10':
-                                        habit.todays_log?.status === 'skipped', // or failed
-                                    'hover:bg-gray-50 dark:hover:bg-gray-600':
-                                        !habit.todays_log,
+                                    'bg-red-50/80 dark:bg-red-900/20':
+                                        habit.todays_log?.status === 'failed' || habit.todays_log?.status === 'skipped',
+                                    'bg-gray-50 dark:bg-gray-700/50':
+                                        !habit.todays_log || habit.todays_log?.status === 'none',
                                 }"
                             >
                                 <span
-                                    class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                                    class="text-sm font-semibold text-gray-900 dark:text-gray-100 w-full sm:w-1/2"
                                     :class="{
                                         'line-through decoration-green-500/50 decoration-2 opacity-70':
                                             habit.todays_log?.status ===
                                             'completed',
-                                        'opacity-70':
+                                        'opacity-70 text-red-600 dark:text-red-400':
                                             habit.todays_log?.status ===
-                                            'skipped',
+                                            'failed' || habit.todays_log?.status === 'skipped',
                                     }"
                                     >{{ habit.title }}</span
                                 >
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 sm:gap-4 items-center justify-between sm:justify-end w-full sm:w-auto px-2 sm:px-0">
                                     <button
                                         @click="toggleHabit(habit, 'completed')"
-                                        aria-label="Berhasil"
-                                        class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center hover:scale-105"
-                                        :class="{
-                                            'bg-green-400 text-white border-transparent':
-                                                habit.todays_log?.status ===
-                                                'completed',
-                                            'bg-white dark:bg-gray-700 border-green-200 dark:border-green-800 text-green-400 hover:bg-green-400 hover:text-white':
-                                                habit.todays_log?.status !==
-                                                'completed',
-                                        }"
+                                        class="flex flex-col items-center gap-1 group transition-all"
                                     >
-                                        <Check class="w-5 h-5" />
+                                        <div
+                                            class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-sm cursor-pointer border-2"
+                                            :class="{
+                                                'bg-green-100 border-green-400 scale-110': habit.todays_log?.status === 'completed',
+                                                'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105': habit.todays_log?.status !== 'completed'
+                                            }"
+                                        >
+                                            😊
+                                        </div>
+                                        <span class="text-[10px] font-bold" :class="habit.todays_log?.status === 'completed' ? 'text-green-600' : 'text-gray-400'">Melakukan</span>
                                     </button>
+
                                     <button
-                                        @click="toggleHabit(habit, 'skipped')"
-                                        aria-label="Tidak Dilakukan"
-                                        class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center hover:scale-105"
-                                        :class="{
-                                            'bg-red-400 text-white border-transparent':
-                                                habit.todays_log?.status ===
-                                                'skipped',
-                                            'bg-white dark:bg-gray-700 border-red-200 dark:border-red-800 text-red-400 hover:bg-red-400 hover:text-white':
-                                                habit.todays_log?.status !==
-                                                'skipped',
-                                        }"
+                                        @click="toggleHabit(habit, 'none')"
+                                        class="flex flex-col items-center gap-1 group transition-all"
                                     >
-                                        <X class="w-5 h-5" />
+                                        <div
+                                            class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-sm cursor-pointer border-2"
+                                            :class="{
+                                                'bg-gray-200 border-gray-400 scale-110': !habit.todays_log || habit.todays_log?.status === 'none',
+                                                'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105': habit.todays_log && habit.todays_log?.status !== 'none'
+                                            }"
+                                        >
+                                            😐
+                                        </div>
+                                        <span class="text-[10px] font-bold" :class="!habit.todays_log ? 'text-gray-600' : 'text-gray-400'">Belum</span>
+                                    </button>
+
+                                    <button
+                                        @click="toggleHabit(habit, 'failed')"
+                                        class="flex flex-col items-center gap-1 group transition-all"
+                                    >
+                                        <div
+                                            class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-sm cursor-pointer border-2"
+                                            :class="{
+                                                'bg-red-100 border-red-400 scale-110': habit.todays_log?.status === 'failed' || habit.todays_log?.status === 'skipped',
+                                                'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105': habit.todays_log?.status !== 'failed' && habit.todays_log?.status !== 'skipped'
+                                            }"
+                                        >
+                                            😢
+                                        </div>
+                                        <span class="text-[10px] font-bold" :class="(habit.todays_log?.status === 'failed' || habit.todays_log?.status === 'skipped') ? 'text-red-600' : 'text-gray-400'">Tidak</span>
                                     </button>
                                 </div>
                             </div>

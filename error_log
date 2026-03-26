@@ -1,0 +1,10 @@
+[11-Mar-2026 04:16:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/bootstrap/app.php:7
+Stack trace:
+#0 /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/artisan(14): require_once()
+#1 {main}
+  thrown in /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/bootstrap/app.php on line 7
+[11-Mar-2026 04:17:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/bootstrap/app.php:7
+Stack trace:
+#0 /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/artisan(14): require_once()
+#1 {main}
+  thrown in /home/jcifkgkd/habit-tracker.overcomer.my.id/habit_tracker/bootstrap/app.php on line 7

@@ -23,7 +23,7 @@
                         <tr wire:key="attendance-{{ $attendance['id'] }}" class="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{{ $attendance['student']['name'] ?? 'Unknown' }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $attendance['classroom']['name'] ?? '-' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($attendance['created_at'])->format('H:i') }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($attendance['created_at'] ?? now())->format('H:i') }}</td>
                             <td class="px-4 py-3">
                                 @if($attendance['status'] === 'pending')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">

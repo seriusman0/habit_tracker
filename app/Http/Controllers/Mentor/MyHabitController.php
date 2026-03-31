@@ -18,15 +18,18 @@ class MyHabitController extends Controller
         $studentId = $user->id; // Treat Mentor as 'student_id' owner of their habits
         $today = now()->toDateString();
 
-        // Fetch Habits directly owned by Mentor
-        // Mentors don't have "assigned" habits via pivot in this context (self-managed)
-        $habits = Habit::where('student_id', $studentId)
-            ->where('is_active', true)
-            ->with(['category', 'logs' => function ($query) use ($today) {
-                $query->whereDate('log_date', $today);
+        // Fetch Habits via Pivot instead of 'student_id' attribute
+        $habits = $user->habits()
+            ->wherePivot('is_active', true)
+            ->with(['category', 'logs' => function ($query) use ($today, $studentId) {
+                $query->where('student_id', $studentId)->whereDate('log_date', $today);
             }])
             ->get()
             ->transform(function ($habit) {
+                if ($habit->pivot) {
+                    $habit->color = $habit->pivot->color ?? $habit->color;
+                    $habit->frequency = $habit->pivot->frequency ?? $habit->frequency;
+                }
                 $habit->todays_log = $habit->logs->first();
                 unset($habit->logs);
                 return $habit;
@@ -77,21 +80,26 @@ class MyHabitController extends Controller
 
         if ($request->filled('category_name')) {
             $category = HabitCategory::firstOrCreate(
-                ['student_id' => $userId, 'name' => $request->category_name],
-                []
+                ['name' => $request->category_name],
+                ['created_by_user_id' => $userId]
             );
             $categoryId = $category->id;
         }
 
-        Habit::create([
-            'student_id' => $userId, // Mentor is the 'student' (owner)
+        $habit = Habit::create([
             'category_id' => $categoryId,
             'title' => $validated['title'],
             'is_active' => true,
-            'created_by_user_id' => $userId,
-            'color' => 'bg-indigo-500', // Default
-            'frequency' => 'daily', // Default
         ]);
+
+        /** @var \App\Models\User $user */
+        if ($user = Auth::user()) {
+            $user->habits()->attach($habit->id, [
+                'is_active' => true,
+                'frequency' => 'daily',
+                'color' => 'bg-indigo-500',
+            ]);
+        }
 
         return back();
     }
@@ -100,8 +108,11 @@ class MyHabitController extends Controller
     {
         $userId = Auth::id();
 
-        // Security check: Ensure Mentor owns this habit
-        if ($habit->student_id !== $userId) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Security check via pivot
+        if (!$user->habits()->where('habit_id', $habit->id)->exists()) {
             abort(403);
         }
 

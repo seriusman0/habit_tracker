@@ -25,19 +25,16 @@ class HabitController extends Controller
         $categoryId = null;
         if ($request->filled('category_name')) {
             $category = HabitCategory::firstOrCreate(
-            ['student_id' => $studentId, 'name' => $request->category_name],
-            []
+                ['name' => $request->category_name],
+                ['created_by_user_id' => $studentId]
             );
             $categoryId = $category->id;
         }
 
         $habit = Habit::create([
-            'student_id' => $studentId,
             'category_id' => $categoryId,
             'title' => $validated['title'],
             'is_active' => true,
-            // 'color' => default?
-            // 'frequency' => default 'daily'?
         ]);
 
         // Attach to pivot so it appears in the student's list
@@ -63,7 +60,8 @@ class HabitController extends Controller
         $assignedHabit = $user ? $user->habits()->where('habit_id', $habit->id)->first() : null;
         $hasAssigned = (bool)$assignedHabit;
 
-        if ($habit->student_id !== $userId && !$hasAssigned) {
+        // Validasi kepemilikan via pivot secara eksklusif
+        if (!$hasAssigned) {
             abort(403);
         }
 

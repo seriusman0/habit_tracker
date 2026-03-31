@@ -1,93 +1,28 @@
-Kamu adalah Senior Laravel Engineer yang bertugas menambahkan fitur baru pada project production TANPA merusak sistem existing.
+Act as an Expert Laravel Developer and Database Architect. I need to refactor the architecture of my `Habit` and `HabitCategory` models to act as independent "Master Data" entities. 
 
-KONTEKS PROJECT:
-Project ini adalah aplikasi Habit Tracker multi-role (Student, Mentor, Admin) dengan stack:
-- Laravel 12
-- Inertia.js + Vue 3
-- Filament v3 (Mentor/Admin panel)
-- Spatie Permission (role management)
+**Context & Current Flaws:**
+Currently, my `habits` and `habit_categories` tables contain a `student_id` column. This is a design flaw because a Habit (like "Wake up early") should be a universal template. Students should relate to these master habits via a Many-to-Many pivot table, not by owning the master record directly. I already have a `habit_user` pivot table in my database that contains `id`, `habit_id`, `student_id`, `color`, `frequency`, and `is_active`.
 
-Fitur existing memiliki area sensitif:
-- Role & Middleware redirect
-- Habit ownership & pivot logic
-- Habit toggle system (HabitLog)
-- Habit assignment (duplikasi data oleh Mentor)
+**What I need you to do:**
 
-TUGAS:
-Tambahkan fitur baru bernama **Presensi / Kehadiran Student** dengan alur berikut:
+**Step 1: Database Migrations Refactor**
+Create a new migration (or give me the code to update existing migrations) to:
+1. DROP the `student_id` column from the `habits` table.
+2. DROP the `student_id` column from the `habit_categories` table.
 
-FLOW YANG DIINGINKAN:
-1. Default status kehadiran Student = TIDAK HADIR
-2. Student dapat menandai dirinya sebagai "Hadir" (check-in)
-3. Status tersebut BELUM VALID sampai Mentor melakukan konfirmasi
-4. Mentor melihat daftar pengajuan kehadiran dari student dalam classroom
-5. Mentor dapat:
-   - Accept (menjadi valid)
-   - Reject (kembali ke tidak hadir / ditolak)
-6. Data yang sudah di-accept akan menjadi data absensi final
+**Step 2: Eloquent Models & Relationships Integration**
+Update the following models with strict, correctly defined relationships:
+1. `HabitCategory` Model:
+   - Needs a `hasMany` relationship to the `Habit` model.
+2. `Habit` Model:
+   - Needs a `belongsTo` relationship to `HabitCategory`.
+   - Needs a `belongsToMany` relationship to the `User` model (acting as students) using the `habit_user` pivot table. Include `withPivot('color', 'frequency', 'is_active')` and `withTimestamps()`.
+3. `User` Model (Student role):
+   - Needs a `belongsToMany` relationship to the `Habit` model using the `habit_user` pivot table.
 
-BATASAN KRITIS (WAJIB DIPATUHI):
-- ❌ JANGAN ubah logic Habit (Habit, HabitLog, toggle, assignment)
-- ❌ JANGAN ubah relasi existing (User, Habit, Classroom)
-- ❌ JANGAN ubah middleware atau role system
-- ❌ JANGAN ubah struktur controller yang sudah ada
-- ❌ JANGAN refactor besar
+**Step 3: Controller / Assignment Logic Fix**
+When a Mentor assigns a Habit to a Student or Classroom (e.g., in the `/mentor/my-classes/{id}/edit` page):
+- Ensure the query to fetch available habits retrieves from the master `habits` table (filtering only by active habits and loading their categories).
+- Ensure the saving logic uses `attach()`, `sync()`, or `syncWithoutDetaching()` on the student's `habits()` relationship, saving personal settings like `color` into the pivot table, instead of trying to create a new record in the `habits` table.
 
-- ✅ HANYA tambahkan komponen baru yang TERISOLASI
-- ✅ Gunakan pola yang SUDAH ADA di project (Student/Mentor separation)
-- ✅ Ikuti naming convention & struktur folder yang sama
-- ✅ Pastikan backward compatible (tidak merusak fitur lama)
-
-LANGKAH WAJIB (JANGAN LANGSUNG CODING):
-
-1. ANALISIS DESAIN FITUR
-   - Tentukan apakah perlu tabel baru (kemungkinan: attendances / presences)
-   - Tentukan field yang dibutuhkan (student_id, classroom_id, status, date, dll)
-   - Tentukan status flow (pending, accepted, rejected)
-
-2. RENCANA INTEGRASI
-   - Student:
-     - Di mana tombol "Hadir" diletakkan (kemungkinan di dashboard student)
-     - Endpoint apa yang dibutuhkan
-   - Mentor:
-     - Di mana melihat daftar presensi (Filament / halaman mentor)
-     - Bagaimana UI approval bekerja
-
-3. DEFINISIKAN STRUKTUR BACKEND
-   - Migration (jika diperlukan)
-   - Model baru (jangan ganggu model lama)
-   - Controller baru (misal: Student/AttendanceController, Mentor/AttendanceController)
-   - Routes baru (pisahkan di student.php & mentor.php)
-
-4. VALIDASI KOMPATIBILITAS
-   - Pastikan tidak konflik dengan:
-     - Habit system
-     - Classroom system
-     - Role system
-   - Jelaskan kenapa aman
-
-5. BARU SETELAH ITU:
-   - Berikan implementasi kode STEP BY STEP (tidak langsung semuanya)
-   - Setiap step harus bisa diuji tanpa merusak sistem
-
-FORMAT OUTPUT WAJIB:
-
-1. Desain Fitur (High-level)
-2. Struktur Database (jika ada)
-3. Flow Student
-4. Flow Mentor
-5. Dampak ke Sistem Existing (harus dijelaskan: AMAN / tidak)
-6. Step Implementasi (bertahap, kecil, aman)
-
-PRINSIP PENTING:
-- Lebih baik menambah file baru daripada mengubah file lama
-- Hindari menyentuh kode existing kecuali benar-benar diperlukan (dan jelaskan alasannya)
-- Jika ragu → beri opsi, JANGAN langsung eksekusi
-
-JANGAN:
-❌ Langsung generate semua kode tanpa desain
-❌ Mengubah Habit system
-❌ Menggabungkan fitur presensi ke tabel lain (harus terpisah agar aman)
-❌ Membuat asumsi tanpa penjelasan
-
-Jika ada ketidakjelasan tentang relasi Classroom ↔ Student, tanyakan dulu sebelum lanjut implementasi.
+Please provide the exact PHP codes for the Migrations, Models, and an example of how the assignment logic (attach/sync) should look in the controller/Livewire component.

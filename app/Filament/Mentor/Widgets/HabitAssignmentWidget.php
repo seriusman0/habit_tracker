@@ -46,8 +46,10 @@ class HabitAssignmentWidget extends Widget
     public function loadTemplates()
     {
         // Get habits that are "templates" (student_id is null)
-        $this->categories = HabitCategory::with(['habits' => function ($query) {
-            $query->whereNull('student_id');
+        $userId = auth()->id();
+        $this->categories = HabitCategory::with(['habits' => function ($query) use ($userId) {
+            $query->whereNull('created_by_user_id')
+                  ->orWhere('created_by_user_id', $userId);
         }])
             ->get()
             ->map(function ($category) {

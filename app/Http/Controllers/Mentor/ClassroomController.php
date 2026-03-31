@@ -59,22 +59,18 @@ class ClassroomController extends Controller
         $student = $classroom->students()->findOrFail($validated['student_id']);
         $template = Habit::findOrFail($validated['habit_id']);
 
-        // Create a copy of the habit for the student
-        $newHabit = Habit::create([
-            'student_id' => $student->id,
-            'title' => $template->title,
-            'description' => $template->description,
-            'category_id' => $template->category_id,
-            'color' => $template->color,
-            'frequency' => $template->frequency,
-            'target_time' => $template->target_time,
-            'is_active' => true,
-            'created_by_user_id' => auth()->id(),
+        // Attach the template habit to the student via pivot instead of copying
+        $student->habits()->syncWithoutDetaching([
+            $template->id => [
+                'color' => $template->color,
+                'frequency' => $template->frequency ?? 'daily',
+                'is_active' => true,
+            ]
         ]);
 
         return response()->json([
             'message' => 'Habit assigned successfully',
-            'habit' => $newHabit,
+            'habit' => $template, // Return template as reference
         ]);
     }
 }

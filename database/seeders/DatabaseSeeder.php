@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
         // Initial Habit for Student
         \App\Models\Habit::create([
             'created_by_user_id' => $student->id,
-            'student_id' => $student->id,
             'title' => 'Complete Homework',
             'description' => 'Finish math assignment',
             'color' => '#3B82F6', // Blue

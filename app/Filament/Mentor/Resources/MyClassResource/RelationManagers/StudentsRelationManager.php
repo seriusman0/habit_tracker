@@ -53,7 +53,18 @@ class StudentsRelationManager extends RelationManager
             ->form([
                 Forms\Components\Select::make('habit_id')
                 ->label('Select Habit Template')
-                ->options(fn() => Habit::where('created_by_user_id', Auth::id())->pluck('title', 'id'))
+                ->options(function () {
+                    $userId = auth()->id();
+                    return \App\Models\Habit::with('category')
+                        ->where(function ($query) use ($userId) {
+                            $query->whereNull('created_by_user_id')
+                                  ->orWhere('created_by_user_id', $userId);
+                        })
+                        ->get()
+                        ->groupBy(fn ($habit) => $habit->category?->name ?? 'Uncategorized')
+                        ->map(fn ($habits) => $habits->pluck('title', 'id'))
+                        ->toArray();
+                })
                 ->searchable()
                 ->preload()
                 ->required()
@@ -105,7 +116,18 @@ class StudentsRelationManager extends RelationManager
             ->form([
                 Forms\Components\Select::make('habit_id')
                 ->label('Select Habit Template')
-                ->options(fn() => Habit::where('created_by_user_id', Auth::id())->pluck('title', 'id'))
+                ->options(function () {
+                    $userId = auth()->id();
+                    return \App\Models\Habit::with('category')
+                        ->where(function ($query) use ($userId) {
+                            $query->whereNull('created_by_user_id')
+                                  ->orWhere('created_by_user_id', $userId);
+                        })
+                        ->get()
+                        ->groupBy(fn ($habit) => $habit->category?->name ?? 'Uncategorized')
+                        ->map(fn ($habits) => $habits->pluck('title', 'id'))
+                        ->toArray();
+                })
                 ->searchable()
                 ->preload()
                 ->required()

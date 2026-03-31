@@ -16,7 +16,6 @@ class Habit extends Model
         'color',
         'frequency',
         'is_active',
-        'student_id',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -27,17 +26,12 @@ class Habit extends Model
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(HabitCategory::class, 'category_id');
+        return $this->belongsTo(HabitCategory::class, 'category_id', 'id');
     }
 
     public function logs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(HabitLog::class);
-    }
-
-    public function student(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(User::class, 'student_id');
     }
 
     public function students(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

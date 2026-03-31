@@ -35,18 +35,10 @@ class DashboardController extends Controller
             }
         });
 
-        // 2. Fetch Habits directly owned (student_id = user_id)
-        $ownedHabits = \App\Models\Habit::where('student_id', $studentId)
-            ->where('is_active', true)
-            ->with(['category', 'logs' => function ($query) use ($today, $thisMonday, $studentId) {
-            $query->where('student_id', $studentId)
-                ->whereIn('log_date', [$today, $thisMonday]);
-        }])
-            ->get();
+        // 2. (Removed directly owned habits fetch as all habits use pivot now)
 
-        // 3. Merge and formatting
-        $allHabits = $assignedHabits->merge($ownedHabits)
-            ->unique('id') // Prevent duplicates if somehow linked both ways
+        // 3. Formatting
+        $allHabits = $assignedHabits
             ->transform(function ($habit) use ($today, $thisMonday) {
             // Penentuan tanggal sentinel berdasarkan tipe rutinitas
             $targetDate = ($habit->frequency === 'weekly') ? $thisMonday : $today;

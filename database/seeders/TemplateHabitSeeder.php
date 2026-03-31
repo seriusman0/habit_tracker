@@ -18,7 +18,6 @@ class TemplateHabitSeeder extends Seeder
                 'title' => $category->name . ' Routine',
                 'description' => 'Default routine for ' . $category->name,
                 'is_active' => true,
-                'student_id' => null, // Template
                 'color' => '#10B981',
                 'frequency' => 'daily',
             ]);

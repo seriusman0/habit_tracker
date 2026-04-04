@@ -11,6 +11,9 @@ use Filament\Notifications\Notification;
 
 class HabitAssignmentWidget extends Widget
 {
+    // Widget ini tidak digunakan lagi — assign habits kini dilakukan via API
+    protected static bool $isDiscovered = false;
+
     protected static string $view = 'filament.mentor.widgets.habit-assignment-widget';
     protected int | string | array $columnSpan = 'full';
 

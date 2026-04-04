@@ -77,16 +77,12 @@ const isMoodActive = (mood) => {
     return props.todaysReflection?.mood === mood;
 };
 
-// Add Habit Modal Logic (Simple Prompt for MVP)
+// Add Habit — category harus diset via admin panel
 const addHabit = () => {
     const title = prompt("Nama kebiasaan baru:");
     if (title) {
-        const category = prompt("Kategori (opsional):");
         router.post(route("mentor.my-habits.store"), {
             title: title,
-            category_name: category,
-            color: "bg-indigo-500", // Default
-            frequency: "daily",
         });
     }
 };

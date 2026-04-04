@@ -14,7 +14,6 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Friends
     Route::get('/friends', [\App\Http\Controllers\Student\FriendController::class, 'index'])->name('friends.index');
 
-    Route::post('/habits', [\App\Http\Controllers\Student\HabitController::class, 'store'])->name('habits.store');
     Route::post('/habits/{habit}/toggle', [\App\Http\Controllers\Student\HabitController::class, 'toggle'])->name('habits.toggle');
     Route::post('/reflections', [\App\Http\Controllers\Student\DailyReflectionController::class, 'store'])->name('reflections.store');
 

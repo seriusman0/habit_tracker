@@ -17,8 +17,9 @@ class HabitCategoryResource extends Resource
 {
     protected static ?string $model = HabitCategory::class;
 
-    protected static ?string $navigationGroup = 'Administration';
-    protected static ?int $navigationSort = 11;
+    protected static ?string $navigationLabel = 'Kategori Kebiasaan';
+    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

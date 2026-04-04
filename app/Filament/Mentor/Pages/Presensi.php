@@ -2,14 +2,20 @@
 
 namespace App\Filament\Mentor\Pages;
 
-use Filament\Pages\Page;
 use App\Models\Attendance;
 use App\Models\Classroom;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
+use Filament\Pages\Page;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
-class Presensi extends Page
+class Presensi extends Page implements HasTable
 {
+    use InteractsWithTable;
+
     protected static ?string $navigationIcon = 'heroicon-o-check-badge';
     protected static ?string $navigationLabel = 'Presensi Siswa';
     protected static ?string $title = 'Presensi Hari Ini';
@@ -17,58 +23,77 @@ class Presensi extends Page
 
     protected static string $view = 'filament.mentor.pages.presensi';
 
-    public $attendances = [];
-
-    public function mount()
+    public function table(Table $table): Table
     {
-        $this->loadAttendances();
-    }
+        $mentorClassroomIds = Classroom::where('mentor_id', Auth::id())->pluck('id');
 
-    public function loadAttendances()
-    {
-        try {
-            // Get all classrooms owned by this mentor
-            $classroomIds = Classroom::where('mentor_id', \Illuminate\Support\Facades\Auth::id())->pluck('id');
+        return $table
+            ->query(
+                Attendance::query()
+                    ->with(['student:id,name', 'classroom:id,name'])
+                    ->whereIn('classroom_id', $mentorClassroomIds)
+                    ->whereDate('date', now()->toDateString())
+                    ->orderByRaw("FIELD(status, 'pending', 'accepted', 'rejected')")
+                    ->orderBy('created_at', 'desc')
+            )
+            ->columns([
+                Tables\Columns\TextColumn::make('student.name')
+                    ->label('Nama Siswa')
+                    ->searchable()
+                    ->weight('medium'),
 
-            // Get today's attendance for those classrooms
-            $this->attendances = Attendance::with(['student:id,name', 'classroom:id,name'])
-                ->whereIn('classroom_id', $classroomIds)
-                ->whereDate('date', now()->toDateString())
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->toArray();
-        } catch (\Exception $e) {
-            // Fallback gracefully in case of missing columns in production or DB issues
-            Log::error('Error loading attendances: ' . $e->getMessage());
-            $this->attendances = [];
-            
-            Notification::make()
-                ->title('Gagal memuat data presensi.')
-                ->body('Pastikan Anda telah menjalankan migrate di server production.')
-                ->danger()
-                ->send();
-        }
-    }
+                Tables\Columns\TextColumn::make('classroom.name')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('gray'),
 
-    public function updateStatus($attendanceId, $status)
-    {
-        $attendance = Attendance::find($attendanceId);
-        
-        // Ensure classroom is not null in case it was softly or forcefully deleted without cascade
-        if ($attendance && $attendance->classroom && $attendance->classroom->mentor_id === \Illuminate\Support\Facades\Auth::id()) {
-            $attendance->update(['status' => $status]);
-            
-            Notification::make()
-                ->title('Status kehadiran diperbarui.')
-                ->success()
-                ->send();
-                
-            $this->loadAttendances();
-        } else {
-            Notification::make()
-                ->title('Aksi tidak diizinkan atau data tidak valid.')
-                ->danger()
-                ->send();
-        }
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu Pengajuan')
+                    ->time('H:i')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'pending'  => 'Menunggu',
+                        'accepted' => 'Hadir',
+                        'rejected' => 'Ditolak',
+                        default    => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending'  => 'warning',
+                        'accepted' => 'success',
+                        'rejected' => 'danger',
+                        default    => 'gray',
+                    }),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('accept')
+                    ->label('Hadir')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Kehadiran')
+                    ->modalDescription('Tandai siswa ini sebagai hadir?')
+                    ->modalSubmitActionLabel('Ya, Hadir')
+                    ->action(fn(Attendance $record) => $record->update(['status' => 'accepted']))
+                    ->hidden(fn(Attendance $record): bool => $record->status === 'accepted'),
+
+                Tables\Actions\Action::make('reject')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tolak Kehadiran')
+                    ->modalDescription('Yakin ingin menolak kehadiran siswa ini?')
+                    ->modalSubmitActionLabel('Ya, Tolak')
+                    ->action(fn(Attendance $record) => $record->update(['status' => 'rejected']))
+                    ->hidden(fn(Attendance $record): bool => $record->status === 'rejected'),
+            ])
+            ->emptyStateHeading('Belum ada pengajuan kehadiran')
+            ->emptyStateDescription('Siswa di kelas Anda belum mengajukan kehadiran hari ini.')
+            ->emptyStateIcon('heroicon-o-calendar-days')
+            ->poll('30s');
     }
 }

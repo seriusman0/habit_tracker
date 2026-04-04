@@ -25,6 +25,9 @@ class AttendanceController extends Controller
             'status' => $validated['status'],
         ]);
 
-        return back()->with('success', 'Status kehadiran berhasil diperbarui.');
+        return response()->json([
+            'message' => 'Status kehadiran berhasil diperbarui.',
+            'attendance' => $attendance,
+        ]);
     }
 }

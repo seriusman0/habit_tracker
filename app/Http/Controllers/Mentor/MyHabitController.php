@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Mentor;
 use App\Http\Controllers\Controller;
 use App\Models\DailyReflection;
 use App\Models\Habit;
-use App\Models\HabitCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -72,24 +71,16 @@ class MyHabitController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'category_name' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:habit_categories,id',
         ]);
 
         $userId = Auth::id();
-        $categoryId = null;
-
-        if ($request->filled('category_name')) {
-            $category = HabitCategory::firstOrCreate(
-                ['name' => $request->category_name],
-                ['created_by_user_id' => $userId]
-            );
-            $categoryId = $category->id;
-        }
 
         $habit = Habit::create([
-            'category_id' => $categoryId,
+            'category_id' => $validated['category_id'] ?? null,
             'title' => $validated['title'],
             'is_active' => true,
+            'created_by_user_id' => $userId,
         ]);
 
         /** @var \App\Models\User $user */

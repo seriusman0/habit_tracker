@@ -17,10 +17,11 @@ class GeneticTypeResource extends Resource
 {
     protected static ?string $model = GeneticType::class;
 
-    protected static ?string $navigationGroup = 'Administration';
-    protected static ?int $navigationSort = 10;
+    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationLabel = 'Tipe Genetik';
+    protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-beaker';
 
     public static function form(Form $form): Form
     {

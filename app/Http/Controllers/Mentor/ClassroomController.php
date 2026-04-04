@@ -18,16 +18,13 @@ class ClassroomController extends Controller
         Gate::authorize('view', $classroom);
 
         $classroom->load(['students' => function ($q) {
-            $q->select('users.id', 'users.name', 'users.email', 'users->genetic_type_id')
-                ->with('habits'); // Load existing habits for students
+            $q->select('users.id', 'users.name', 'users.email', 'users.genetic_type_id')
+                ->with('habits');
         }]);
 
-        // Get "Template" habits (habits with no student_id, potentially created by this mentor or admin)
-        // For MVP, we might treat ALL active habits created by this mentor as templates if they have no student attached.
-        // Or if we don't have distinct templates, we can fetch unique habits created by this user.
-        // Let's assume habits with student_id = NULL are templates.
-        $templates = Habit::whereNull('student_id')
-            ->where('is_active', true)
+        // All active master habits (no student_id column since refactor)
+        $templates = Habit::where('is_active', true)
+            ->with('category')
             ->get();
 
         // Get today's attendances for this classroom

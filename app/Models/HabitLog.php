@@ -14,8 +14,6 @@ class HabitLog extends Model
         'logged_at',
     ];
 
-    protected $guarded = [];
-
     public function student(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');

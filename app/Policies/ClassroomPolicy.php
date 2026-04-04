@@ -21,7 +21,11 @@ class ClassroomPolicy
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('mentor');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        return $user->hasRole('mentor') && (int) $classroom->mentor_id === (int) $user->id;
     }
 
     /**

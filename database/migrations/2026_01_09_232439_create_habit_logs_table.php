@@ -6,25 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('habit_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('habit_id')->constrained()->cascadeOnDelete();
-            $table->date('date');
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->date('log_date');
             $table->enum('status', ['completed', 'skipped', 'failed'])->default('completed');
+            $table->timestamp('logged_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['habit_id', 'date']);
+            $table->unique(['student_id', 'habit_id', 'log_date']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('habit_logs');

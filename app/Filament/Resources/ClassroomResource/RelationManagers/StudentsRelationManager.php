@@ -41,19 +41,18 @@ class StudentsRelationManager extends RelationManager
             //
         ])
             ->headerActions([
-            Tables\Actions\AttachAction::make()
-            ->preloadRecordSelect()
-            ->recordSelectOptionsQuery(fn(Builder $query) => $query->role('student'))
-            ->recordSelectSearchColumns(['name', 'email']),
-        ])
+                Tables\Actions\AttachAction::make()
+                    ->preloadRecordSelect()
+                    ->recordSelectOptionsQuery(fn(Builder $query) => $query->role('student'))
+                    ->recordSelectSearchColumns(['name', 'email']),
+            ])
             ->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DetachAction::make(),
-        ])
+                Tables\Actions\DetachAction::make(),
+            ])
             ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DetachBulkAction::make(),
-            ]),
-        ]);
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DetachBulkAction::make(),
+                ]),
+            ]);
     }
 }

@@ -24,34 +24,28 @@ class WeeklySummaryService
         $weekStart = now()->startOfWeek(Carbon::MONDAY)->toDateString();
         $weekEnd = now()->endOfWeek(Carbon::SUNDAY)->toDateString();
 
-        // 1. Ambil Assigned & Owned Habits dalam 1 query kencang
+        // 1. Ambil Assigned Habits via pivot dalam 1 query
         $habits = Habit::with(['students' => function ($q) use ($ids) {
             // Eager load only for the requested student IDs to get pivot data
             $q->whereIn('habit_user.student_id', $ids)
                 ->where('habit_user.is_active', true);
         }])
-            ->where(function ($query) use ($ids) {
-            // Owned habits
-            $query->whereIn('student_id', $ids)->where('is_active', true);
-        })
-            ->orWhereHas('students', function ($query) use ($ids) {
-            // Assigned habits
+            ->whereHas('students', function ($query) use ($ids) {
+            // Only habits assigned to these students
             $query->whereIn('habit_user.student_id', $ids)->where('habit_user.is_active', true);
         })
+            ->where('is_active', true)
             ->get();
 
         // Hitung ekspektasi (Expected) habit untuk masing-masing siswa
         $expected = collect($ids)->mapWithKeys(fn($id) => [$id => ['daily' => 0, 'weekly' => 0]]);
 
         foreach ($habits as $habit) {
-            // Cek apakah owned by student
-            $ownedBy = $ids;
             foreach ($ids as $sId) {
-                $isOwned = $habit->student_id === $sId;
                 $assignedPivot = $habit->students->firstWhere('id', $sId);
 
-                if ($isOwned || $assignedPivot) {
-                    $frequency = $assignedPivot ? ($assignedPivot->pivot->frequency ?? $habit->frequency) : $habit->frequency;
+                if ($assignedPivot) {
+                    $frequency = $assignedPivot->pivot->frequency ?? $habit->frequency;
 
                     if ($frequency === 'daily') {
                         $expected[$sId]['daily'] += 7; // Ekpektasi 7 kali seminggu

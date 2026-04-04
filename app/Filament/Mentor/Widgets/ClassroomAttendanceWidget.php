@@ -9,6 +9,9 @@ use Filament\Notifications\Notification;
 
 class ClassroomAttendanceWidget extends Widget
 {
+    // Hanya ditampilkan secara eksplisit di halaman Edit Kelas, bukan di dashboard
+    protected static bool $isDiscovered = false;
+
     protected static string $view = 'filament.mentor.widgets.classroom-attendance-widget';
     protected int | string | array $columnSpan = 'full';
 

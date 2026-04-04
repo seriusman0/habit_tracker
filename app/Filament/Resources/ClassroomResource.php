@@ -17,10 +17,12 @@ class ClassroomResource extends Resource
 {
     protected static ?string $model = Classroom::class;
 
-    protected static ?string $modelLabel = 'Class';
-    protected static ?string $pluralModelLabel = 'Classes';
-    protected static ?string $navigationLabel = 'Classes';
-    protected static ?int $navigationSort = 5;
+    protected static ?string $modelLabel = 'Kelas';
+    protected static ?string $pluralModelLabel = 'Kelas';
+    protected static ?string $navigationLabel = 'Kelas';
+    protected static ?string $navigationGroup = 'Academic';
+    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

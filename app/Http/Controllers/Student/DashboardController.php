@@ -58,13 +58,22 @@ class DashboardController extends Controller
         $categories = $allHabits->whereNotNull('category_id')
             ->groupBy('category_id')
             ->map(function ($habits, $categoryId) {
-            $category = $habits->first()->category;
-            return [
-            'id' => $categoryId,
-            'name' => $category ? $category->name : 'Unknown',
-            'habits' => $habits->sortBy('id')->values()->toArray(),
-            ];
-        })->sortBy('id')->values();
+                $category = $habits->first()->category;
+                return [
+                    'id' => $categoryId,
+                    'name' => $category ? $category->name : 'Unknown',
+                    'habits' => $habits->sortBy('id')->values()->toArray(),
+                ];
+            })->sortBy('id')->values();
+
+        $uncategorized = $allHabits->whereNull('category_id');
+        if ($uncategorized->isNotEmpty()) {
+            $categories->push([
+                'id' => 'uncategorized',
+                'name' => 'Lainnya',
+                'habits' => $uncategorized->sortBy('id')->values()->toArray(),
+            ]);
+        }
 
         $todaysReflection = DailyReflection::where('student_id', $studentId)
             ->whereDate('ref_date', $today)

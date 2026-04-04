@@ -22,6 +22,7 @@ class BranchResource extends Resource
     protected static ?string $modelLabel = 'Cabang';
     protected static ?string $pluralModelLabel = 'Cabang';
     protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -55,7 +56,25 @@ class BranchResource extends Resource
     {
         return $table
             ->columns([
-        ])
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Cabang')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('city')
+                    ->label('Kota')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('province')
+                    ->label('Provinsi')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('coordinator_name')
+                    ->label('Koordinator')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Telepon'),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Aktif')
+                    ->boolean(),
+            ])
             ->filters([
             //
         ])

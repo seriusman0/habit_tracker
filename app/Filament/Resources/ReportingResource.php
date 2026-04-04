@@ -20,7 +20,8 @@ class ReportingResource extends Resource
     protected static ?string $pluralModelLabel = 'Reporting';
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationGroup = 'Academic';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

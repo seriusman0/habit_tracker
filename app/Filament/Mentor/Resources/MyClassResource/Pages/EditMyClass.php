@@ -32,7 +32,6 @@ class EditMyClass extends EditRecord
     {
         return [
             \App\Filament\Mentor\Widgets\ClassroomAttendanceWidget::class,
-            \App\Filament\Mentor\Widgets\HabitAssignmentWidget::class,
         ];
     }
 }

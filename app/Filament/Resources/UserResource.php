@@ -82,7 +82,12 @@ class UserResource extends Resource
                     ->label('Role'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->after(function ($record) {
+                        if ($record->hasRole('student')) {
+                            $record->assignDefaultHabits();
+                        }
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

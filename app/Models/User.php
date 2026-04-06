@@ -122,4 +122,28 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->hasMany(Attendance::class, 'student_id');
     }
+
+    /**
+     * Assign all active habits to this student.
+     * Safe to call multiple times — will not duplicate existing assignments.
+     */
+    public function assignDefaultHabits(): void
+    {
+        $existingHabitIds = $this->habits()->pluck('habits.id')->toArray();
+
+        $toAttach = [];
+        foreach (Habit::where('is_active', true)->get() as $habit) {
+            if (!in_array($habit->id, $existingHabitIds)) {
+                $toAttach[$habit->id] = [
+                    'color'      => $habit->color,
+                    'frequency'  => $habit->frequency,
+                    'is_active'  => true,
+                ];
+            }
+        }
+
+        if (!empty($toAttach)) {
+            $this->habits()->attach($toAttach);
+        }
+    }
 }

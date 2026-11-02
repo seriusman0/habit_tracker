@@ -5,7 +5,7 @@ use App\Models\Habit;
 
 test('user has habits relationship', function () {
     $user = User::factory()->create();
-    $habit = Habit::factory()->create(['user_id' => $user->id]);
+    $habit = Habit::factory()->create(['created_by_user_id' => $user->id]);
 
     expect($user->habits)->toHaveCount(1)
         ->and($user->habits->first()->id)->toBe($habit->id);

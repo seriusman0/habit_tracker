@@ -19,7 +19,7 @@ test('Scenario A: User B cannot see User As private habit', function () {
 
     // Private habit (no permissions data)
     Habit::factory()->create([
-        'user_id' => $userA->id,
+        'created_by_user_id' => $userA->id,
         'title' => 'Private Habit'
     ]);
 
@@ -41,7 +41,7 @@ test('Scenario B: User B can see User As shared habit', function () {
 
     // Habit
     $habit = Habit::factory()->create([
-        'user_id' => $userA->id,
+        'created_by_user_id' => $userA->id,
         'title' => 'Public Habit'
     ]);
 
@@ -70,7 +70,7 @@ test('Scenario C: User C cannot see habit shared only with User B', function () 
 
     // Habit
     $habit = Habit::factory()->create([
-        'user_id' => $userA->id,
+        'created_by_user_id' => $userA->id,
         'title' => 'Shared with B only'
     ]);
 

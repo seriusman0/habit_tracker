@@ -20,12 +20,12 @@ test('user can create a habit', function () {
     $response->assertRedirect(route('habits.index'));
     $this->assertDatabaseHas('habits', [
         'title' => 'Drink Water',
-        'user_id' => $this->user->id
+        'created_by_user_id' => $this->user->id
     ]);
 });
 
 test('user can view their own habits', function () {
-    $habit = Habit::factory()->create(['user_id' => $this->user->id, 'title' => 'My Secret Habit']);
+    $habit = Habit::factory()->create(['created_by_user_id' => $this->user->id, 'title' => 'My Secret Habit']);
     \App\Models\HabitLog::create([
         'habit_id' => $habit->id,
         'date' => now()->toDateString(),
@@ -45,7 +45,7 @@ test('user can view their own habits', function () {
 
 test('user cannot edit another users habit (IDOR)', function () {
     $otherUser = User::factory()->create();
-    $habit = Habit::factory()->create(['user_id' => $otherUser->id]);
+    $habit = Habit::factory()->create(['created_by_user_id' => $otherUser->id]);
 
     $response = $this->actingAs($this->user)
         ->put(route('habits.update', $habit), [
@@ -60,7 +60,7 @@ test('user cannot edit another users habit (IDOR)', function () {
 
 test('user cannot delete another users habit (IDOR)', function () {
     $otherUser = User::factory()->create();
-    $habit = Habit::factory()->create(['user_id' => $otherUser->id]);
+    $habit = Habit::factory()->create(['created_by_user_id' => $otherUser->id]);
 
     $response = $this->actingAs($this->user)
         ->delete(route('habits.destroy', $habit));
@@ -70,7 +70,7 @@ test('user cannot delete another users habit (IDOR)', function () {
 });
 
 test('toggle endpoint cycles status correctly', function () {
-    $habit = Habit::factory()->create(['user_id' => $this->user->id]);
+    $habit = Habit::factory()->create(['created_by_user_id' => $this->user->id]);
     $date = now()->toDateString();
 
     // Cycle 1: Null -> Completed

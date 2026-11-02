@@ -21,8 +21,7 @@ class HabitFactory extends Factory
             'description' => fake()->sentence(),
             'color' => fake()->hexColor(),
             'frequency' => fake()->randomElement(['daily', 'weekly']),
-            'is_archived' => false,
-            'user_id' => \App\Models\User::factory(),
+            'created_by_user_id' => \App\Models\User::factory(),
         ];
     }
 }

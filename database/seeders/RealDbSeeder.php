@@ -9,7 +9,9 @@ class RealDbSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        }
 
         // ── 1. genetic_types ─────────────────────────────────────────────
         DB::table('genetic_types')->insert([

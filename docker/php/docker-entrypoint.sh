@@ -20,7 +20,7 @@ php artisan package:discover --ansi || true
 
 # Sync fresh build assets into the public/build volume
 if [ -d /opt/build-assets ]; then
-  cp -r /opt/build-assets/. /var/www/html/public/build/
+  cp -rf /opt/build-assets/. /var/www/html/public/build/ 2>/dev/null || true
   chown -R www-data:www-data /var/www/html/public/build 2>/dev/null || true
 fi
 

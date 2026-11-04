@@ -1,7 +1,7 @@
 # HabitShare REST API — Dokumentasi untuk Pengembang Android
 
 Base URL (local): `http://localhost:8000`
-Base URL (prod): sesuaikan dengan deployment.
+Base URL (prod): `https://habit-tracker.nanoprojectdevindonesia.com`
 
 Autentikasi: Laravel Sanctum (Bearer token). Semua endpoint (kecuali login/register) butuh header:
 `Authorization: Bearer <token>`

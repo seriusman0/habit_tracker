@@ -11,11 +11,11 @@ Autentikasi: Laravel Sanctum (Bearer token). Semua endpoint (kecuali login/regis
 ### POST /api/login
 Request:
 ```json
-{ "email": "student@example.com", "password": "password", "device_name": "android-app" }
+{ "email": "admin@admin.com", "password": "password", "device_name": "android-app" }
 ```
 Response 200:
 ```json
-{ "token": "1|abc...", "user": { "id": 1, "name": "Student", "email": "student@example.com", "roles": ["student"] } }
+{ "token": "1|abc...", "user": { "id": 1, "name": "Admin", "email": "admin@admin.com", "roles": ["admin"] } }
 ```
 
 ### POST /api/register
